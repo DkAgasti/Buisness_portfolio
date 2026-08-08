@@ -246,12 +246,9 @@ DEFAULT_ROLES = [
 
 async def seed_data():
     """Seed default data if collections are empty."""
-    # Seed admin user
-    admin = await db.admins.find_one({"email": "5yearcodepro.dev@gmail.com"})
-    if not admin:
-        hashed = bcrypt.hashpw("Agasti@2002".encode(), bcrypt.gensalt())
-        await db.admins.insert_one({"email": "5yearcodepro.dev@gmail.com", "password": hashed.decode(), "created_at": datetime.now(timezone.utc)})
-        logging.info("Admin user seeded: 5yearcodepro.dev@gmail.com / Agasti@2002")
+    # NOTE: Admin users are NOT created here. Login checks the `admins` collection
+    # directly — credentials must already exist in the DB. Create/manage admins in
+    # the database itself (see create_admin.py helper), never in code.
 
     # Seed site config
     existing = await db.site_config.find_one({"key": "site_config"})

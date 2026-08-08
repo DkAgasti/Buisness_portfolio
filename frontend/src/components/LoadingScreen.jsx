@@ -49,15 +49,15 @@ export function LoadingScreen() {
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1.6, repeat: Infinity, ease: 'linear' }}
               />
-              <div className="absolute inset-[3px] rounded-[0.85rem] bg-[#050507] flex items-center justify-center">
-                <motion.span
-                  className="text-3xl font-bold text-white font-heading"
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
+              <div className="absolute inset-[3px] rounded-[0.85rem] bg-white flex items-center justify-center overflow-hidden">
+                <motion.img
+                  src="/logo.png"
+                  alt="Logo"
+                  className="w-18 h-18 object-contain p-1"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.15 }}
-                >
-                  <span className="gradient-text">A</span>
-                </motion.span>
+                />
               </div>
             </div>
 

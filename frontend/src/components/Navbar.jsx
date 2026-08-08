@@ -15,7 +15,6 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { siteConfig } = useContent();
   const config = siteConfig || {};
-  // Same image used in the About Me section; company name is admin-editable.
   const logo = config.avatar || config.photo || config.profileImage || config.image;
   const companyName = config.companyName || config.name || '';
 
