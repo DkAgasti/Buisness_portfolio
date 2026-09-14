@@ -28,14 +28,14 @@ export function LoadingScreen() {
     <AnimatePresence>
       {isLoading && (
         <motion.div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#050507]"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-[hsl(var(--background))]"
           exit={{ opacity: 0, scale: 1.04 }}
           transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
           data-testid="loading-screen"
         >
           {/* Ambient glow */}
-          <div className="absolute w-[420px] h-[420px] rounded-full bg-blue-600/20 blur-[110px]" />
-          <div className="absolute w-[320px] h-[320px] rounded-full bg-purple-600/20 blur-[110px] translate-x-24 translate-y-16" />
+          <div className="absolute w-[420px] h-[420px] rounded-full bg-indigo-300/25 blur-[110px]" />
+          <div className="absolute w-[320px] h-[320px] rounded-full bg-violet-300/25 blur-[110px] translate-x-24 translate-y-16" />
 
           <div className="relative flex flex-col items-center">
             {/* Rotating conic ring around the mark */}
@@ -44,7 +44,7 @@ export function LoadingScreen() {
                 className="absolute inset-0 rounded-2xl"
                 style={{
                   background:
-                    'conic-gradient(from 0deg, transparent, #3b82f6, #8b5cf6, #ec4899, transparent)',
+                    'conic-gradient(from 0deg, transparent, #6366f1, #8b5cf6, transparent)',
                 }}
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1.6, repeat: Infinity, ease: 'linear' }}
@@ -62,9 +62,9 @@ export function LoadingScreen() {
             </div>
 
             {/* Determinate progress bar */}
-            <div className="w-44 h-[3px] rounded-full bg-white/8 overflow-hidden">
+            <div className="w-44 h-[3px] rounded-full bg-[hsl(var(--muted))] overflow-hidden">
               <motion.div
-                className="h-full bg-gradient-to-r from-blue-500 via-violet-500 to-pink-500"
+                className="h-full bg-gradient-to-r from-indigo-500 to-violet-500"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -73,7 +73,7 @@ export function LoadingScreen() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="mt-4 text-[11px] text-white/40 tracking-[0.25em] uppercase"
+              className="mt-4 text-[11px] text-muted-foreground tracking-[0.25em] uppercase"
             >
               Crafting Experience
             </motion.p>

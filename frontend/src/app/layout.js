@@ -1,4 +1,4 @@
-import { Inter, Space_Grotesk } from "next/font/google";
+import { Inter, Space_Grotesk, Caveat } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 
@@ -11,6 +11,12 @@ const inter = Inter({
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-space-grotesk",
+  display: "swap",
+});
+
+const caveat = Caveat({
+  subsets: ["latin"],
+  variable: "--font-handwriting",
   display: "swap",
 });
 
@@ -95,17 +101,10 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: [
-    {
-      media: "(prefers-color-scheme: light)",
-      color: "#ffffff",
-    },
-    {
-      media: "(prefers-color-scheme: dark)",
-      color: "#09090b",
-    },
-  ],
-  colorScheme: "light dark",
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#faf6ef",
+  colorScheme: "light",
 };
 
 // JSON-LD Structured Data
@@ -167,7 +166,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${spaceGrotesk.variable}`}
+      className={`${inter.variable} ${spaceGrotesk.variable} ${caveat.variable}`}
       suppressHydrationWarning
     >
       <head>
@@ -181,10 +180,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className={`${inter.className} antialiased`}>
-        <div className="aurora-bg" aria-hidden="true" />
-        <div className="grid-overlay" aria-hidden="true" />
         <Providers>{children}</Providers>
-        <div className="noise-overlay" />
       </body>
     </html>
   );

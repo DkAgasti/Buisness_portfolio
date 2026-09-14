@@ -11,6 +11,7 @@ module.exports = {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         heading: ['Space Grotesk', 'system-ui', 'sans-serif'],
+        handwriting: ['var(--font-handwriting)', 'cursive'],
       },
       colors: {
         background: 'hsl(var(--background))',

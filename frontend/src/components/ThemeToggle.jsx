@@ -20,7 +20,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
-      className="relative w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-primary"
+      className="relative w-10 h-10 rounded-full bg-[hsl(var(--muted))] flex items-center justify-center hover:bg-[hsl(var(--border))] transition-colors focus-visible:ring-2 focus-visible:ring-primary"
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       data-testid="navbar-theme-toggle"
     >

@@ -2,81 +2,98 @@
 
 import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, TrendingUp } from 'lucide-react';
 import { ScrollReveal } from '@/components/ScrollReveal';
 import { ProjectCard } from '@/components/ProjectCard';
 import { ProjectModal } from '@/components/ProjectModal';
-import { useContent } from '@/components/ContentProvider';
+import { Placeholder } from '@/components/ui/placeholder';
+import { PROJECTS } from '@/lib/projects-data';
+import { CONTAINER } from '@/lib/container';
+
+function FeaturedCard({ project, onOpen }) {
+  return (
+    <button
+      onClick={() => onOpen(project)}
+      className="group w-full text-left relative rounded-2xl overflow-hidden h-full min-h-[420px] flex flex-col justify-end"
+      data-testid="project-card"
+      aria-label={`Open case study for ${project.name}`}
+    >
+      <Placeholder
+        ratio={project.placeholderRatio || '4/5'}
+        rounded="rounded-none"
+        label={project.placeholderLabel}
+        className="absolute inset-0 w-full h-full group-hover:scale-105 transition-transform duration-500"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+
+      <span className="absolute top-4 left-4 px-3 py-1 text-[11px] rounded-full bg-primary text-white font-semibold uppercase tracking-wide">
+        Featured
+      </span>
+      {project.category && (
+        <span className="absolute bottom-[6.5rem] left-4 px-2.5 py-1 text-[11px] rounded-md bg-white/90 text-foreground font-medium">
+          {project.category}
+        </span>
+      )}
+
+      <div className="relative z-10 p-5 text-white">
+        <h3 className="text-xl font-bold font-heading mb-1">{project.name}</h3>
+        <p className="text-sm text-white/80 mb-2">{project.description}</p>
+        {project.result && (
+          <p className="inline-flex items-center gap-1.5 text-xs text-white/70">
+            <TrendingUp className="w-3.5 h-3.5" />
+            {project.result}
+          </p>
+        )}
+      </div>
+
+      <span className="absolute bottom-5 right-5 w-9 h-9 rounded-full bg-white flex items-center justify-center text-foreground group-hover:bg-primary group-hover:text-white transition-colors">
+        <ArrowUpRight className="w-4 h-4" />
+      </span>
+    </button>
+  );
+}
 
 export function Projects() {
   const [selected, setSelected] = useState(null);
-  const { projects: dynamicProjects } = useContent();
-  const projects = dynamicProjects || [];
+  const featured = PROJECTS.find((p) => p.featured) || PROJECTS[0];
+  const rest = PROJECTS.filter((p) => p !== featured);
 
-  const filtered = projects;
-
-  const scrollToContact = (e) => {
+  const scrollToTop = (e) => {
     e.preventDefault();
-    document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
+    document.querySelector('#projects')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <section id="projects" className="py-14 sm:py-16 lg:py-24" data-testid="projects-section">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+    <section id="projects" className="py-14 sm:py-16 lg:py-20" data-testid="projects-section">
+      <div className={CONTAINER}>
         <ScrollReveal>
-          <div className="text-center mb-10 lg:mb-12">
-            <span className="section-eyebrow mb-4">Selected Work</span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-heading tracking-tight mb-3 mt-4">
-              Featured <span className="gradient-text">Products</span>
-            </h2>
-            <p className="text-muted-foreground max-w-md mx-auto">
-              Real software, shipped end-to-end. Click any product for the full case study.
-            </p>
-          </div>
-        </ScrollReveal>
-
-        {/* Auto-scrolling single-row marquee — glides slowly, pauses on hover */}
-        {filtered.length > 0 && (
-          <div className="relative left-1/2 -translate-x-1/2 w-screen overflow-hidden py-4 [mask-image:linear-gradient(to_right,transparent,black_4%,black_96%,transparent)]">
-            <div className="projects-marquee-track flex w-max">
-              {[...filtered, ...filtered].map((project, idx) => (
-                <ProjectCard
-                  key={`${project.id || project._id || project.name}-${idx}`}
-                  project={project}
-                  onOpen={setSelected}
-                  className="w-[300px] sm:w-[340px] flex-shrink-0 mr-5 sm:mr-6"
-                />
-              ))}
+          <div className="flex flex-wrap items-end justify-between gap-4 mb-10 lg:mb-12">
+            <div>
+              <span className="section-eyebrow mb-3 block">My Portfolio</span>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-heading tracking-tight mb-3">Selected Work</h2>
+              <p className="text-muted-foreground max-w-md">
+                A few of my recent projects. Each one was a unique challenge, and I&apos;m proud of the results.
+              </p>
             </div>
-          </div>
-        )}
-
-        {filtered.length === 0 && (
-          <div className="text-center py-14">
-            <p className="text-muted-foreground mb-4">
-              New work is on the way.
-            </p>
-            <a href="#contact" onClick={scrollToContact} className="btn-ghost inline-flex px-5 py-2.5 text-sm">
-              Discuss your project
+            <a href="#projects" onClick={scrollToTop} className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:gap-2.5 transition-all whitespace-nowrap">
+              View all projects
               <ArrowRight className="w-4 h-4" />
             </a>
           </div>
-        )}
+        </ScrollReveal>
 
-        {/* Closing CTA — turn interest into a conversation */}
-        {filtered.length > 0 && (
-          <ScrollReveal delay={0.1}>
-            <div className="mt-14 text-center">
-              <p className="text-muted-foreground mb-4">
-                Have a project like these in mind?
-              </p>
-              <a href="#contact" onClick={scrollToContact} className="btn-primary inline-flex px-6 py-3">
-                Let&apos;s build it together
-                <ArrowRight className="w-4 h-4" />
-              </a>
+        <ScrollReveal delay={0.1}>
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+            <div className="lg:col-span-2">
+              <FeaturedCard project={featured} onOpen={setSelected} />
             </div>
-          </ScrollReveal>
-        )}
+            <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {rest.map((project) => (
+                <ProjectCard key={project.id} project={project} onOpen={setSelected} />
+              ))}
+            </div>
+          </div>
+        </ScrollReveal>
       </div>
 
       <AnimatePresence>

@@ -2,12 +2,21 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
-import { ThemeToggle } from '@/components/ThemeToggle';
-import { ScrollProgress } from '@/components/ScrollProgress';
+import { Menu, X, ArrowRight } from 'lucide-react';
 import { navLinks } from '@/lib/nav';
 import { useContent } from '@/components/ContentProvider';
 import { realUrl } from '@/lib/project';
+import { openContactModal } from '@/components/ContactModal';
+import { DEFAULT_NAME } from '@/lib/identity';
+import { CONTAINER } from '@/lib/container';
+
+// Inline style (not a Tailwind class) so the slow, smooth easing always
+// applies reliably regardless of arbitrary-value class generation.
+// `max-width` is driven from plain px numbers (not "auto"/"none") because
+// browsers can't smoothly interpolate a width transition to/from those
+// keywords — mixing them is what made the pill's content used to "snap"
+// into place instantly even though the background faded in slowly.
+const NAV_EASE = 'all 2.4s cubic-bezier(0.22, 1, 0.36, 1)';
 
 export function Navbar() {
   const [activeSection, setActiveSection] = useState('');
@@ -16,7 +25,7 @@ export function Navbar() {
   const { siteConfig } = useContent();
   const config = siteConfig || {};
   const logo = config.avatar || config.photo || config.profileImage || config.image;
-  const companyName = config.companyName || config.name || '';
+  const companyName = DEFAULT_NAME;
 
   useEffect(() => {
     const ids = navLinks.map((l) => l.href.replace('#', ''));
@@ -24,16 +33,12 @@ export function Navbar() {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
 
-      // Deterministic active section: the last section whose top has crossed a
-      // reference line ~35% down the viewport is the one being read.
       const line = window.innerHeight * 0.35;
       let current = ids[0];
       for (const id of ids) {
         const el = document.getElementById(id);
         if (el && el.getBoundingClientRect().top <= line) current = id;
       }
-      // At the very bottom, force the last nav section (short final sections
-      // may never reach the reference line).
       if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
         current = ids[ids.length - 1];
       }
@@ -52,28 +57,23 @@ export function Navbar() {
   const handleNavClick = (e, href) => {
     e.preventDefault();
     const el = document.querySelector(href);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
     setMobileOpen(false);
   };
 
   return (
     <>
-      <ScrollProgress />
       <header
-        className={`sticky top-0 z-50 transition-all duration-300 ${
-          scrolled ? 'py-2.5' : 'py-4'
-        }`}
+        className={`sticky top-0 z-50 ${scrolled ? 'py-2.5' : 'py-4'}`}
+        style={{ transition: NAV_EASE }}
         data-testid="navbar"
       >
-        <nav className="mx-auto max-w-6xl px-4 sm:px-6">
+        <nav className={CONTAINER} style={{ transition: NAV_EASE }}>
           <div
-            className={`flex items-center justify-between rounded-2xl transition-all duration-300 ${
-              scrolled
-                ? 'glass px-4 py-2 shadow-[0_8px_32px_-16px_rgba(0,0,0,0.6)]'
-                : 'px-0 py-0 bg-transparent'
+            className={`flex items-center justify-between rounded-2xl ${
+              scrolled ? 'nav-glass px-4 py-2' : 'px-0 py-0 bg-transparent'
             }`}
+            style={{ transition: NAV_EASE }}
           >
             {/* Logo */}
             <a
@@ -84,7 +84,7 @@ export function Navbar() {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
             >
-              <div className="relative w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center shadow-[0_0_18px_-4px_rgba(59,130,246,0.6)] ring-1 ring-white/15">
+              <div className="relative w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-600 shadow-[0_0_18px_-4px_rgba(99,102,241,0.5)]">
                 {realUrl(logo) ? (
                   <img
                     src={logo}
@@ -94,11 +94,10 @@ export function Navbar() {
                     decoding="async"
                   />
                 ) : (
-                  <span className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white font-heading">
-                    {companyName.charAt(0)}
+                  <span className="text-sm font-bold text-white font-heading">
+                    {companyName.split(' ').map((w) => w[0]).slice(0, 2).join('')}
                   </span>
                 )}
-                {/* signature sheen sweep on hover */}
                 <span className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/25 to-transparent translate-x-[-120%] group-hover:translate-x-[120%] transition-transform duration-700" />
               </div>
               <span className="brand-underline font-heading font-semibold text-lg hidden sm:block">
@@ -115,9 +114,7 @@ export function Navbar() {
                   onClick={(e) => handleNavClick(e, link.href)}
                   aria-current={activeSection === link.href.replace('#', '') ? 'true' : undefined}
                   className={`relative px-3.5 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    activeSection === link.href.replace('#', '')
-                      ? 'text-foreground'
-                      : 'text-muted-foreground hover:text-foreground'
+                    activeSection === link.href.replace('#', '') ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
                   }`}
                   data-testid={`navbar-link-${link.name.toLowerCase()}`}
                 >
@@ -125,20 +122,29 @@ export function Navbar() {
                   {activeSection === link.href.replace('#', '') && (
                     <motion.div
                       layoutId="activeNav"
-                      className="absolute inset-0 rounded-lg border bg-gradient-to-b from-black/[0.06] to-black/[0.02] border-black/10 dark:from-white/10 dark:to-white/[0.03] dark:border-white/10 -z-10"
+                      className="absolute inset-0 rounded-lg bg-[hsl(var(--muted))] -z-10"
                       transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
                     />
                   )}
                 </a>
               ))}
+              <button
+                onClick={openContactModal}
+                className="px-3.5 py-2 text-sm font-medium rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+                data-testid="navbar-link-contact"
+              >
+                Contact
+              </button>
             </div>
 
             {/* Right Side */}
-            <div className="flex items-center gap-3">
-              <ThemeToggle />
-              {/* Mobile toggle */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <button onClick={openContactModal} className="btn-primary hidden sm:inline-flex px-5 py-2.5 text-sm">
+                Start a Project
+                <ArrowRight className="w-4 h-4" />
+              </button>
               <button
-                className="lg:hidden w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                className="lg:hidden w-10 h-10 flex items-center justify-center rounded-lg text-foreground hover:bg-[hsl(var(--muted))] transition-colors"
                 onClick={() => setMobileOpen(!mobileOpen)}
                 aria-label="Toggle menu"
                 data-testid="navbar-mobile-menu-button"
@@ -157,7 +163,7 @@ export function Navbar() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="lg:hidden mx-4 sm:mx-6 mt-2 rounded-2xl glass-strong overflow-hidden"
+              className="lg:hidden mx-4 sm:mx-6 mt-2 rounded-2xl nav-glass overflow-hidden"
             >
               <div className="px-4 py-4 space-y-1">
                 {navLinks.map((link) => (
@@ -167,20 +173,31 @@ export function Navbar() {
                     onClick={(e) => handleNavClick(e, link.href)}
                     className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                       activeSection === link.href.replace('#', '')
-                        ? 'text-foreground bg-black/5 dark:bg-white/10'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5'
+                        ? 'text-foreground bg-[hsl(var(--muted))]'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-[hsl(var(--muted))]'
                     }`}
                   >
                     {link.name}
                   </a>
                 ))}
-                <a
-                  href="#contact"
-                  onClick={(e) => handleNavClick(e, '#contact')}
+                <button
+                  onClick={() => {
+                    setMobileOpen(false);
+                    openContactModal();
+                  }}
+                  className="block w-full px-4 py-3 rounded-lg text-sm font-medium text-left text-muted-foreground hover:text-foreground hover:bg-[hsl(var(--muted))] transition-colors"
+                >
+                  Contact
+                </button>
+                <button
+                  onClick={() => {
+                    setMobileOpen(false);
+                    openContactModal();
+                  }}
                   className="btn-primary w-full mt-3 py-3 text-sm"
                 >
-                  Hire Me
-                </a>
+                  Start a Project
+                </button>
               </div>
             </motion.div>
           )}

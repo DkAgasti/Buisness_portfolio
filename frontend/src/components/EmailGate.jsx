@@ -71,45 +71,42 @@ export function EmailGate({ children }) {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="w-full max-w-md glass rounded-2xl p-8 relative"
-              style={{ background: 'rgba(10,10,26,0.95)', border: '1px solid rgba(255,255,255,0.1)' }}
+              className="w-full max-w-md card-surface rounded-2xl p-8 relative"
             >
-              <div className="absolute -top-px left-1/2 -translate-x-1/2 w-32 h-px bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
-
               <div className="text-center mb-6">
-                <div className="w-14 h-14 mx-auto rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-4">
+                <div className="w-14 h-14 mx-auto rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center mb-4">
                   <Mail className="w-7 h-7 text-white" />
                 </div>
-                <h2 className="text-xl font-bold font-heading text-white mb-2">
+                <h2 className="text-xl font-bold font-heading mb-2">
                   Welcome to My Portfolio
                 </h2>
-                <p className="text-sm text-gray-400 leading-relaxed">
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   Enter your email to explore my work, projects, and experience. No spam, I promise.
                 </p>
               </div>
 
               {error && (
-                <div className="mb-4 p-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs text-center">
+                <div className="mb-4 p-2.5 rounded-lg bg-red-50 border border-red-200 text-red-500 text-xs text-center">
                   {error}
                 </div>
               )}
 
               <form onSubmit={handleSubmit} className="space-y-3">
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
                     autoFocus
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-sm"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-[hsl(var(--border))] placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 text-sm"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl font-medium text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(59,130,246,0.25)]"
+                  className="btn-primary w-full py-3 text-sm disabled:opacity-50"
                 >
                   {loading ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Please wait...</>
@@ -119,7 +116,7 @@ export function EmailGate({ children }) {
                 </button>
               </form>
 
-              <p className="text-[10px] text-gray-500 text-center mt-4">
+              <p className="text-[10px] text-muted-foreground text-center mt-4">
                 Your email is safe with me. Used only for communication purposes.
               </p>
             </motion.div>

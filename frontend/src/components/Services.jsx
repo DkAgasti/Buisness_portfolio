@@ -1,89 +1,75 @@
 'use client';
 
-import {
-  Server, Database, Globe, Monitor, Zap, Search,
-  Code2, Cloud, Smartphone, Layers, ArrowUpRight,
-} from 'lucide-react';
+import { Code2, Smartphone, Sparkles, Layers, ArrowRight, ArrowUpRight } from 'lucide-react';
 import { ScrollReveal } from '@/components/ScrollReveal';
-import { SpotlightCard } from '@/components/ui/spotlight-card';
-import { useContent } from '@/components/ContentProvider';
+import { openContactModal } from '@/components/ContactModal';
+import { CONTAINER } from '@/lib/container';
 
-const iconMap = {
-  Server, Database, Globe, Monitor, Zap, Search, Code2, Cloud, Smartphone, Layers,
-};
+const SERVICES = [
+  {
+    icon: Code2,
+    title: 'Website Development',
+    description: 'Modern, responsive websites and web applications.',
+  },
+  {
+    icon: Smartphone,
+    title: 'Mobile App Development',
+    description: 'iOS & Android applications with polished UX.',
+  },
+  {
+    icon: Sparkles,
+    title: 'UI/UX Design',
+    description: 'Clean interfaces designed around users and business goals.',
+  },
+  {
+    icon: Layers,
+    title: 'Custom Digital Products',
+    description: 'From idea → design → development → launch.',
+  },
+];
 
 export function Services() {
-  const { services: dynamicServices } = useContent();
-  const services = dynamicServices || [];
-
-  const scrollToContact = (e) => {
+  const scrollToTop = (e) => {
     e.preventDefault();
-    document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
+    document.querySelector('#services')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  if (!services || services.length === 0) return null;
-
   return (
-    <section id="services" className="py-14 sm:py-16 lg:py-24" data-testid="services-section">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <ScrollReveal>
-          <div className="text-center mb-10 lg:mb-12">
-            <span className="section-eyebrow mb-4">Services</span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-heading tracking-tight mb-3 mt-4">
-              What I <span className="gradient-text">Offer</span>
-            </h2>
-            <p className="text-muted-foreground max-w-md mx-auto">
-              End-to-end engineering to take your product from idea to production.
+    <section id="services" className="py-14 sm:py-16 lg:py-20" data-testid="services-section">
+      <div className={CONTAINER}>
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,260px)_1fr] gap-8 lg:gap-10 items-start">
+          <ScrollReveal>
+            <span className="section-eyebrow mb-3 block">What I Do</span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-heading tracking-tight mb-3">Services</h2>
+            <p className="text-muted-foreground mb-6">
+              End-to-end digital solutions to help your business grow and succeed.
             </p>
-          </div>
-        </ScrollReveal>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-          {services.map((service, idx) => {
-            const Icon = iconMap[service.icon] || Server;
-            return (
-              <ScrollReveal key={service.title} delay={idx * 0.06}>
-                <SpotlightCard
-                  className="glass rounded-2xl p-6 h-full gradient-border overflow-hidden flex flex-col transition-transform duration-300 hover:-translate-y-1"
-                  data-testid="service-card"
-                >
-                  {/* corner glow */}
-                  <div className="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-primary/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                  <div className="relative z-10 flex-1">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-600/10 border border-white/10 flex items-center justify-center mb-4 transition-colors group-hover:from-blue-500/30">
-                      <Icon className="w-6 h-6 text-primary" />
-                    </div>
-                    <h3 className="font-semibold font-heading text-lg mb-2">
-                      {service.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {service.description}
-                    </p>
-                  </div>
-
-                  <div className="relative z-10 mt-5 pt-4 border-t border-white/5 flex items-center text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
-                    Learn more
-                    <ArrowUpRight className="w-4 h-4 ml-1.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </div>
-                </SpotlightCard>
-              </ScrollReveal>
-            );
-          })}
-        </div>
-
-        <ScrollReveal delay={0.1}>
-          <div className="mt-10 flex justify-center">
-            <a
-              href="#contact"
-              onClick={scrollToContact}
-              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-primary/20 transition-all hover:shadow-primary/40 hover:gap-2.5"
-            >
-              Start a project
-              <ArrowUpRight className="w-4 h-4" />
+            <a href="#services" onClick={scrollToTop} className="btn-outline inline-flex px-5 py-2.5 text-sm">
+              View all services
+              <ArrowRight className="w-4 h-4" />
             </a>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            {SERVICES.map((service, idx) => {
+              const Icon = service.icon;
+              return (
+                <ScrollReveal key={service.title} delay={idx * 0.06}>
+                  <div className="card-surface rounded-2xl p-6 h-full flex flex-col" data-testid="service-card">
+                    <div className="w-11 h-11 rounded-xl bg-[hsl(var(--muted))] flex items-center justify-center mb-4">
+                      <Icon className="w-5 h-5 text-primary" />
+                    </div>
+                    <h3 className="font-semibold font-heading text-base mb-1.5">{service.title}</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed flex-1">{service.description}</p>
+                    <div className="mt-4 text-primary">
+                      <ArrowUpRight className="w-4 h-4" />
+                    </div>
+                  </div>
+                </ScrollReveal>
+              );
+            })}
           </div>
-        </ScrollReveal>
+        </div>
       </div>
     </section>
   );

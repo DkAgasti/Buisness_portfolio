@@ -167,7 +167,7 @@ export function ProjectModal({ project, onClose }) {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 40, scale: 0.97 }}
         transition={{ duration: 0.35, ease: [0.21, 0.47, 0.32, 0.98] }}
-        className="relative w-full max-w-4xl glass-strong sm:rounded-3xl overflow-hidden flex flex-col max-h-[100dvh] sm:max-h-[90vh]"
+        className="relative w-full max-w-4xl card-surface sm:rounded-3xl overflow-hidden flex flex-col max-h-[100dvh] sm:max-h-[90vh]"
         role="dialog"
         aria-modal="true"
         aria-labelledby="project-modal-title"
@@ -216,7 +216,7 @@ export function ProjectModal({ project, onClose }) {
                 </a>
               )}
               {realUrl(project.github) && (
-                <a href={project.github} target="_blank" rel="noopener noreferrer" className="btn-ghost px-5 py-2.5 text-sm">
+                <a href={project.github} target="_blank" rel="noopener noreferrer" className="btn-outline px-5 py-2.5 text-sm">
                   <Github className="w-4 h-4" /> View Code
                 </a>
               )}
@@ -225,7 +225,7 @@ export function ProjectModal({ project, onClose }) {
 
           {/* Project meta (rendered only when provided by the CMS) */}
           {metaItems.length > 0 && (
-            <div className="flex flex-wrap gap-x-10 gap-y-4 mb-8 pb-6 border-b border-white/5">
+            <div className="flex flex-wrap gap-x-10 gap-y-4 mb-8 pb-6 border-b border-[hsl(var(--border))]">
               {metaItems.map((m) => (
                 <div key={m.label}>
                   <div className="text-[11px] uppercase tracking-wider text-muted-foreground/70 mb-1">
@@ -288,7 +288,7 @@ export function ProjectModal({ project, onClose }) {
             <Section icon={ListChecks} title="Key Features">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {features.map((f, i) => (
-                  <div key={i} className="flex gap-2.5 text-sm p-3 rounded-lg bg-white/[0.03] border border-white/5">
+                  <div key={i} className="flex gap-2.5 text-sm p-3 rounded-lg bg-[hsl(var(--muted))] border border-[hsl(var(--border))]">
                     <ListChecks className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                     <span className="text-muted-foreground">{f}</span>
                   </div>
@@ -309,7 +309,7 @@ export function ProjectModal({ project, onClose }) {
               {results.metrics.length > 0 && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
                   {results.metrics.map((m, i) => (
-                    <div key={i} className="glass rounded-xl p-4 text-center">
+                    <div key={i} className="card-surface rounded-xl p-4 text-center">
                       <div className="text-2xl font-bold font-heading gradient-text">{m.value}</div>
                       <div className="text-xs text-muted-foreground mt-1">{m.label}</div>
                     </div>
@@ -340,7 +340,7 @@ export function ProjectModal({ project, onClose }) {
                     src={v.url}
                     controls
                     preload="metadata"
-                    className="w-full rounded-xl border border-white/10 bg-black"
+                    className="w-full rounded-xl border border-[hsl(var(--border))] bg-black"
                   />
                 ))}
               </div>
@@ -358,7 +358,7 @@ export function ProjectModal({ project, onClose }) {
                     alt={m.caption || `${project.name} mobile ${i + 1}`}
                     loading="lazy"
                     decoding="async"
-                    className="h-72 w-auto rounded-2xl border-2 border-white/10 flex-shrink-0"
+                    className="h-72 w-auto rounded-2xl border-2 border-[hsl(var(--border))] flex-shrink-0"
                   />
                 ))}
               </div>

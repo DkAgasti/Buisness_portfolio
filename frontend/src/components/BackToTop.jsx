@@ -29,7 +29,7 @@ export function BackToTop() {
           whileHover={{ scale: 1.1, y: -2 }}
           whileTap={{ scale: 0.92 }}
           onClick={scrollToTop}
-          className="cursor-target fixed bottom-8 right-8 z-50 w-12 h-12 rounded-full glass flex items-center justify-center hover:bg-gray-100 dark:hover:bg-white/10 hover:text-primary transition-colors glow-blue"
+          className="fixed bottom-8 right-8 z-40 w-12 h-12 rounded-full card-surface flex items-center justify-center text-muted-foreground hover:text-primary transition-colors"
           aria-label="Back to top"
           data-testid="back-to-top-button"
         >

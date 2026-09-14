@@ -1,164 +1,90 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Download, MapPin, GraduationCap, Briefcase, Sparkles } from 'lucide-react';
+import { ArrowRight, CalendarDays, FolderKanban, Users } from 'lucide-react';
 import { ScrollReveal } from '@/components/ScrollReveal';
-import { SpotlightCard } from '@/components/ui/spotlight-card';
-import { Reveal } from '@/components/ui/reveal';
-import { useContent } from '@/components/ContentProvider';
-import { realUrl } from '@/lib/project';
+import { Placeholder } from '@/components/ui/placeholder';
+import { DEFAULT_NAME, DEFAULT_ROLE } from '@/lib/identity';
+import { CONTAINER } from '@/lib/container';
 
-function AnimatedCounter({ end, suffix = '' }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const [started, setStarted] = useState(false);
+const TECH = ['React', 'Next.js', 'Node.js', 'MongoDB', 'Expo', 'Figma'];
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !started) setStarted(true);
-      },
-      { threshold: 0.5 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [started]);
+const BIO =
+  "I'm a passionate developer who loves turning ideas into polished digital products. I work with businesses, startups and individuals to build websites, mobile apps and custom solutions that not only look great but also solve real problems.";
 
-  useEffect(() => {
-    if (!started) return;
-    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setCount(end);
-      return;
-    }
-    let startTime = null;
-    const duration = 2000;
-    const step = (timestamp) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.floor(eased * end));
-      if (progress < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [started, end]);
-
-  return (
-    <span ref={ref} className="tabular-nums">
-      {count}
-      {suffix}
-    </span>
-  );
-}
+const STATS = [
+  { icon: CalendarDays, value: 3, suffix: '+', label: 'Years of Experience' },
+  { icon: FolderKanban, value: 6, suffix: '+', label: 'Projects Completed' },
+  { icon: Users, value: 5, suffix: '+', label: 'Happy Clients' },
+];
 
 export function About() {
-  const { siteConfig } = useContent();
-  const config = siteConfig || {};
-  const avatar = config.avatar || config.photo || config.profileImage || config.image;
-  const initials = (config.name || '').split(' ').map((n) => n[0]).join('');
+  const name = DEFAULT_NAME;
+  const role = DEFAULT_ROLE;
+  const stats = STATS;
 
-  const details = [
-    config.location && { icon: MapPin, label: config.location },
-    config.education && { icon: GraduationCap, label: config.education },
-    { icon: Briefcase, label: 'Open to freelance & contract' },
-  ].filter(Boolean);
-
-  const stats = [
-    { value: config.stats_projects || config.stats?.projects || 50, suffix: '+', label: 'Projects Completed' },
-    { value: config.stats_clients || config.stats?.clients || 30, suffix: '+', label: 'Happy Clients' },
-    { value: config.stats_experience || config.stats?.experience || 4, suffix: '+', label: 'Years Experience' },
-  ];
+  const scrollToTop = (e) => {
+    e.preventDefault();
+    document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
-    <section id="about" className="py-14 sm:py-16 lg:py-24" data-testid="about-section">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <ScrollReveal>
-          <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-center">
-            {/* Profile card */}
-            <div className="relative w-64 h-72 sm:w-72 sm:h-80 flex-shrink-0 group">
-              {/* rotating gradient halo */}
-              <div className="absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 opacity-20 blur-2xl group-hover:opacity-40 transition-opacity duration-500" />
-              <div className="relative w-full h-full rounded-[1.75rem] overflow-hidden glass gradient-border">
-                <Reveal className="w-full h-full">
-                  {realUrl(avatar) ? (
-                    <img
-                      src={avatar}
-                      alt={config.name}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center relative">
-                      <div className="absolute inset-0 opacity-[0.07] [background-image:linear-gradient(to_right,rgba(255,255,255,0.4)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.4)_1px,transparent_1px)] [background-size:24px_24px]" />
-                      <div className="w-28 h-28 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-[0_0_40px_-8px_rgba(99,102,241,0.7)]">
-                        <span className="text-5xl font-bold text-white font-heading">{initials}</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-4">Your photo here</p>
-                    </div>
-                  )}
-                </Reveal>
+    <section id="about" className="py-14 sm:py-16 lg:py-20" data-testid="about-section">
+      <div className={CONTAINER}>
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,260px)_1fr_minmax(0,220px)] gap-10 lg:gap-8 items-start">
+          {/* Portrait */}
+          <ScrollReveal>
+            <div className="relative w-full max-w-[260px] mx-auto lg:mx-0">
+              <Placeholder ratio="4/5" rounded="rounded-[1.75rem]" label="portrait" className="w-full shadow-sm" />
+              <div className="sticky-note absolute -top-4 -right-6 -rotate-6 bg-white card-surface rounded-lg px-4 py-2">
+                Build Good Things
               </div>
-              {/* floating badge */}
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.3 }}
-                className="absolute -bottom-4 -right-3 glass-strong rounded-2xl px-4 py-3 flex items-center gap-2 shadow-xl"
-              >
-                <Sparkles className="w-4 h-4 text-primary" />
-                <div className="leading-tight">
-                  <div className="text-sm font-bold font-heading gradient-text">
-                    {stats[2].value}+ yrs
+            </div>
+          </ScrollReveal>
+
+          {/* Bio */}
+          <ScrollReveal delay={0.1}>
+            <span className="section-eyebrow mb-3 block">About Me</span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-heading tracking-tight mb-1">I&apos;m {name}</h2>
+            {role && <p className="text-muted-foreground mb-4">{role}</p>}
+            <p className="text-muted-foreground leading-relaxed mb-6 max-w-prose">{BIO}</p>
+
+            <div className="flex flex-wrap gap-2 mb-7">
+              {TECH.map((t) => (
+                <span key={t} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[hsl(var(--muted))] text-muted-foreground">
+                  {t}
+                </span>
+              ))}
+            </div>
+
+            <a href="#about" onClick={scrollToTop} className="btn-outline inline-flex px-5 py-2.5 text-sm">
+              More about me
+              <ArrowRight className="w-4 h-4" />
+            </a>
+          </ScrollReveal>
+
+          {/* Stats card */}
+          <ScrollReveal delay={0.15} className="relative">
+            <div className="card-surface rounded-2xl p-5 flex flex-col divide-y divide-[hsl(var(--border))]">
+              {stats.map((s) => (
+                <div key={s.label} className="flex items-center gap-3 py-3.5 first:pt-0 last:pb-0">
+                  <div className="w-10 h-10 rounded-xl bg-[hsl(var(--muted))] flex items-center justify-center flex-shrink-0">
+                    <s.icon className="w-4.5 h-4.5 text-primary" />
                   </div>
-                  <div className="text-[10px] text-muted-foreground">experience</div>
+                  <div>
+                    <div className="text-lg font-bold font-heading leading-tight">
+                      {s.value}
+                      {s.suffix}
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-tight">{s.label}</p>
+                  </div>
                 </div>
-              </motion.div>
+              ))}
             </div>
-
-            {/* Bio */}
-            <div className="flex-1">
-              <span className="section-eyebrow mb-4">About Me</span>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-heading tracking-tight mb-4 mt-4">
-                Turning ideas into <span className="gradient-text">production software</span>
-              </h2>
-              <p className="text-muted-foreground leading-relaxed mb-6 max-w-prose">
-                {config.bio}
-              </p>
-
-              {/* Detail chips */}
-              <div className="flex flex-wrap gap-2.5 mb-7">
-                {details.map(({ icon: Icon, label }) => (
-                  <span
-                    key={label}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm glass text-muted-foreground"
-                  >
-                    <Icon className="w-3.5 h-3.5 text-primary" />
-                    {label}
-                  </span>
-                ))}
-              </div>
+            <div className="sticky-note absolute -bottom-5 -right-2 rotate-2 bg-white card-surface rounded-lg px-4 py-2 whitespace-nowrap">
+              Let&apos;s build something great
             </div>
-          </div>
-        </ScrollReveal>
-
-        {/* Stats */}
-        <ScrollReveal delay={0.2}>
-          <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6" data-testid="about-stats">
-            {stats.map((stat) => (
-              <SpotlightCard
-                key={stat.label}
-                className="glass rounded-2xl p-6 text-center gradient-border transition-transform duration-300 hover:-translate-y-1"
-              >
-                <div className="text-3xl sm:text-4xl font-bold font-heading gradient-text mb-1">
-                  <AnimatedCounter end={stat.value} suffix={stat.suffix} />
-                </div>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-              </SpotlightCard>
-            ))}
-          </div>
-        </ScrollReveal>
+          </ScrollReveal>
+        </div>
       </div>
     </section>
   );

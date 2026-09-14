@@ -6,7 +6,7 @@ import { ContentProvider } from '@/components/ContentProvider';
 
 export function Providers({ children }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+    <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
       <ContentProvider>
         {children}
       </ContentProvider>
