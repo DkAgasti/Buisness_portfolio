@@ -7,6 +7,7 @@ export const TESTIMONIALS = [
       'Dinakrushna delivered an outstanding website for our business. The design was clean, fast and exactly what we needed. Communication was smooth throughout.',
     name: 'Rohit Mehra',
     role: 'Founder, Dakota',
+    rating: 5,
   },
   {
     id: 'priya-sharma',
@@ -14,6 +15,7 @@ export const TESTIMONIALS = [
       'Highly professional, responsive and extremely skilled. He turned our idea into a beautiful mobile app and was always available for updates.',
     name: 'Priya Sharma',
     role: 'Product Manager, CVPilot',
+    rating: 5,
   },
   {
     id: 'amit-verma',
@@ -21,5 +23,6 @@ export const TESTIMONIALS = [
       'Great communication, attention to detail. Very easy to work with. Will definitely hire again for future projects.',
     name: 'Amit Verma',
     role: 'Founder, Trall',
+    rating: 5,
   },
 ];

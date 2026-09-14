@@ -44,7 +44,7 @@ export default function TestimonialsPage() {
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-medium">{item.name}</span>
                     <div className="flex gap-0.5">
-                      {[1,2,3,4,5].map(s => <Star key={s} className={`w-3 h-3 ${s<=item.rating?'fill-yellow-400 text-yellow-400':'text-white/15'}`} />)}
+                      {[1,2,3,4,5].map(s => <Star key={s} className={`w-3 h-3 ${s<=item.rating?'fill-yellow-400 text-yellow-400':'text-muted-foreground/40'}`} />)}
                     </div>
                     <span className="text-xs text-muted-foreground">
                       {item.created_at ? formatDistanceToNow(new Date(item.created_at), { addSuffix: true }) : ''}
@@ -52,7 +52,7 @@ export default function TestimonialsPage() {
                   </div>
                   <p className="text-sm text-muted-foreground">&ldquo;{item.message}&rdquo;</p>
                 </div>
-                <button onClick={() => deleteItem(item._id||item.id)} className="p-2 hover:bg-red-500/10 rounded-lg text-red-400 ml-3"><Trash2 className="w-4 h-4" /></button>
+                <button onClick={() => deleteItem(item._id||item.id)} className="p-2 hover:bg-red-500/10 rounded-lg text-red-600 ml-3"><Trash2 className="w-4 h-4" /></button>
               </div>
             </div>
           ))}

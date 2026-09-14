@@ -2,17 +2,41 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useContent } from '@/components/ContentProvider';
+import { realUrl } from '@/lib/project';
+
+const TOTAL_DURATION = 3200; 
+const PROGRESS_DURATION = 2900;
+
+function HelloDraw() {
+  return (
+    <div className="relative overflow-hidden" style={{ lineHeight: 1 }}>
+      <motion.div
+        className="text-8xl sm:text-9xl text-black"
+        style={{ fontFamily: 'var(--font-script), cursive' }}
+        initial={{ clipPath: 'inset(0 100% 0 0)' }}
+        animate={{ clipPath: 'inset(0 0% 0 0)' }}
+        transition={{ duration: 1.3, delay: 0.2, ease: [0.65, 0, 0.35, 1] }}
+      >
+        hello
+      </motion.div>
+    </div>
+  );
+}
 
 export function LoadingScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0);
+  const { siteConfig } = useContent();
+  const config = siteConfig || {};
+  const logo = config.avatar || config.photo || config.profileImage || config.image;
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1900);
+    const timer = setTimeout(() => setIsLoading(false), TOTAL_DURATION);
     let raf;
     const start = performance.now();
     const tick = (now) => {
-      const t = Math.min((now - start) / 1700, 1);
+      const t = Math.min((now - start) / PROGRESS_DURATION, 1);
       // easeOutCubic
       setProgress(Math.round((1 - Math.pow(1 - t, 3)) * 100));
       if (t < 1) raf = requestAnimationFrame(tick);
@@ -38,27 +62,8 @@ export function LoadingScreen() {
           <div className="absolute w-[320px] h-[320px] rounded-full bg-violet-300/25 blur-[110px] translate-x-24 translate-y-16" />
 
           <div className="relative flex flex-col items-center">
-            {/* Rotating conic ring around the mark */}
-            <div className="relative w-20 h-20 mb-7">
-              <motion.div
-                className="absolute inset-0 rounded-2xl"
-                style={{
-                  background:
-                    'conic-gradient(from 0deg, transparent, #6366f1, #8b5cf6, transparent)',
-                }}
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1.6, repeat: Infinity, ease: 'linear' }}
-              />
-              <div className="absolute inset-[3px] rounded-[0.85rem] bg-white flex items-center justify-center overflow-hidden">
-                <motion.img
-                  src="/logo.png"
-                  alt="Logo"
-                  className="w-18 h-18 object-contain p-1"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.15 }}
-                />
-              </div>
+            <div className="mb-8">
+              <HelloDraw />
             </div>
 
             {/* Determinate progress bar */}
@@ -69,14 +74,17 @@ export function LoadingScreen() {
               />
             </div>
 
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="mt-4 text-[11px] text-muted-foreground tracking-[0.25em] uppercase"
-            >
-              Crafting Experience
-            </motion.p>
+            {/* Brand reveal, once "hello" has settled */}
+            {realUrl(logo) && (
+              <motion.div
+                className="relative h-9 mt-5 flex items-center justify-center"
+                initial={{ opacity: 0, y: 6, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.6, delay: 1.7, ease: [0.21, 0.47, 0.32, 0.98] }}
+              >
+                <img src={logo} alt="Logo" className="h-full w-auto object-contain" decoding="async" />
+              </motion.div>
+            )}
           </div>
         </motion.div>
       )}

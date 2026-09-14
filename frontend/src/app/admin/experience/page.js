@@ -74,24 +74,24 @@ export default function ExperiencePage() {
                 <div className="flex-1 space-y-2">
                   <input value={item.company} onChange={e => updateField(id,'company',e.target.value)}
                     onBlur={() => updateItem(id, item)} placeholder="Company"
-                    className="w-full text-lg font-semibold bg-transparent border-b border-transparent focus:border-white/20 focus:outline-none" />
+                    className="w-full text-lg font-semibold bg-transparent border-b border-transparent focus:border-primary/40 focus:outline-none" />
                   <div className="flex gap-3">
                     <input value={item.role} onChange={e => updateField(id,'role',e.target.value)}
                       onBlur={() => updateItem(id, item)} placeholder="Role"
-                      className="flex-1 text-sm bg-transparent border-b border-transparent focus:border-white/20 focus:outline-none text-muted-foreground" />
+                      className="flex-1 text-sm bg-transparent border-b border-transparent focus:border-primary/40 focus:outline-none text-muted-foreground" />
                     <input value={item.duration} onChange={e => updateField(id,'duration',e.target.value)}
                       onBlur={() => updateItem(id, item)} placeholder="Duration"
-                      className="w-40 text-sm bg-transparent border-b border-transparent focus:border-white/20 focus:outline-none text-muted-foreground" />
+                      className="w-40 text-sm bg-transparent border-b border-transparent focus:border-primary/40 focus:outline-none text-muted-foreground" />
                   </div>
                 </div>
-                <button onClick={() => deleteItem(id)} className="p-2 hover:bg-red-500/10 rounded-lg text-red-400 ml-3"><Trash2 className="w-4 h-4" /></button>
+                <button onClick={() => deleteItem(id)} className="p-2 hover:bg-red-500/10 rounded-lg text-red-600 ml-3"><Trash2 className="w-4 h-4" /></button>
               </div>
               <div className="space-y-1 mb-2">
                 {item.achievements?.map((a, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
                     <span className="text-primary">\u25B8</span>
                     <span className="flex-1">{a}</span>
-                    <button onClick={() => removeAchievement(item, idx)} className="hover:text-red-400"><X className="w-3 h-3" /></button>
+                    <button onClick={() => removeAchievement(item, idx)} className="hover:text-red-600"><X className="w-3 h-3" /></button>
                   </div>
                 ))}
               </div>

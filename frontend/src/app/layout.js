@@ -1,4 +1,4 @@
-import { Inter, Space_Grotesk, Caveat } from "next/font/google";
+import { Inter, Space_Grotesk, Caveat, Dancing_Script } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 
@@ -17,6 +17,13 @@ const spaceGrotesk = Space_Grotesk({
 const caveat = Caveat({
   subsets: ["latin"],
   variable: "--font-handwriting",
+  display: "swap",
+});
+
+const dancingScript = Dancing_Script({
+  subsets: ["latin"],
+  weight: ["700"],
+  variable: "--font-script",
   display: "swap",
 });
 
@@ -166,7 +173,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${spaceGrotesk.variable} ${caveat.variable}`}
+      className={`${inter.variable} ${spaceGrotesk.variable} ${caveat.variable} ${dancingScript.variable}`}
       suppressHydrationWarning
     >
       <head>

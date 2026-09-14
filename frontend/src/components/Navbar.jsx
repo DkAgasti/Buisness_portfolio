@@ -64,45 +64,42 @@ export function Navbar() {
   return (
     <>
       <header
-        className={`sticky top-0 z-50 ${scrolled ? 'py-2.5' : 'py-4'}`}
+        className={`sticky top-0 z-50 ${scrolled ? 'py-3' : 'py-5'}`}
         style={{ transition: NAV_EASE }}
         data-testid="navbar"
       >
         <nav className={CONTAINER} style={{ transition: NAV_EASE }}>
           <div
-            className={`flex items-center justify-between rounded-2xl ${
-              scrolled ? 'nav-glass px-4 py-2' : 'px-0 py-0 bg-transparent'
+            className={`flex items-center justify-between rounded-2xl mx-auto ${
+              scrolled ? 'nav-glass px-6 py-3.5' : 'px-0 py-0 bg-transparent'
             }`}
-            style={{ transition: NAV_EASE }}
+            style={{ transition: NAV_EASE, maxWidth: scrolled ? 1024 : 4000 }}
           >
-            {/* Logo */}
+            {/* Logo — image only, no name text */}
             <a
               href="#"
-              className="flex items-center gap-2 group"
+              className="flex items-center"
               onClick={(e) => {
                 e.preventDefault();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
+              aria-label="Back to top"
             >
-              <div className="relative w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-600 shadow-[0_0_18px_-4px_rgba(99,102,241,0.5)]">
+              <div className="relative h-10 flex items-center justify-center">
                 {realUrl(logo) ? (
                   <img
                     src={logo}
-                    alt={`${companyName} logo`}
-                    className="w-full h-full object-cover"
+                    alt="Logo"
+                    className="h-full w-auto object-contain"
                     loading="eager"
                     decoding="async"
                   />
                 ) : (
-                  <span className="text-sm font-bold text-white font-heading">
+                  <span className="text-sm font-bold text-primary font-heading">
                     {companyName.split(' ').map((w) => w[0]).slice(0, 2).join('')}
                   </span>
                 )}
-                <span className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/25 to-transparent translate-x-[-120%] group-hover:translate-x-[120%] transition-transform duration-700" />
               </div>
-              <span className="brand-underline font-heading font-semibold text-lg hidden sm:block">
-                {companyName}
-              </span>
             </a>
 
             {/* Desktop Nav */}

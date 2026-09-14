@@ -1,14 +1,19 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowRight, Play, Star, Globe, Smartphone, Code2, FolderKanban, Users, CalendarDays, Award } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowRight, Play, Star, FolderKanban, Users, CalendarDays, Award } from 'lucide-react';
 import { openContactModal } from '@/components/ContactModal';
-import { Placeholder } from '@/components/ui/placeholder';
 import { CONTAINER } from '@/lib/container';
+import { AnimatedCounter } from '@/components/ui/animated-counter';
+import { useContent } from '@/components/ContentProvider';
 
 const AVATAR_COUNT = 5;
 
 export function Hero() {
+  const { siteConfig } = useContent();
+  const config = siteConfig || {};
+
   const handleScrollTo = (e, id) => {
     e.preventDefault();
     document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -20,10 +25,13 @@ export function Hero() {
     transition: { duration: 0.6, delay, ease: [0.21, 0.47, 0.32, 0.98] },
   });
 
+  // Client Satisfaction has no CMS field (site config only tracks projects/
+  // clients/experience), so it stays a fixed 100 — everything else is
+  // admin-editable, falling back to these defaults if unset.
   const stats = [
-    { icon: FolderKanban, value: 6, suffix: '+', label: 'Projects Completed' },
-    { icon: Users, value: 5, suffix: '+', label: 'Happy Clients' },
-    { icon: CalendarDays, value: 3, suffix: '+', label: 'Years of Experience' },
+    { icon: FolderKanban, value: config.stats_projects || 6, suffix: '+', label: 'Projects Completed' },
+    { icon: Users, value: config.stats_clients || 5, suffix: '+', label: 'Happy Clients' },
+    { icon: CalendarDays, value: config.stats_experience || 3, suffix: '+', label: 'Years of Experience' },
     { icon: Award, value: 100, suffix: '%', label: 'Client Satisfaction' },
   ];
 
@@ -34,10 +42,11 @@ export function Hero() {
       <div className="blob w-[320px] h-[320px] bg-violet-300/25 top-10 right-0" aria-hidden="true" />
 
       <div className={`relative ${CONTAINER}`}>
-        {/* Capped (not re-centered, so it stays pinned to the same left edge
-            as the container/navbar) so the two-column composition can't
-            stretch apart into dead space on very wide screens. */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-6xl">
+        {/* Text column gets a fixed, comfortable reading width; the image
+            column takes all remaining space and scales to fill it (its
+            source is exactly 3:2, matching the frame below with no
+            letterboxing) instead of leaving dead space on wide screens. */}
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,480px)_1fr] gap-12 items-center">
           {/* Left: copy */}
           <div>
             <motion.div {...reveal(0)} className="mb-5">
@@ -110,63 +119,22 @@ export function Hero() {
             initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.15 }}
-            className="relative h-[340px] sm:h-[420px] lg:h-[460px] hidden sm:block"
+            className="relative aspect-[3/2] hidden sm:block"
+            style={{
+              // Fades the image's own rectangular edge into the page
+              // background instead of showing a hard boundary.
+              maskImage: 'radial-gradient(ellipse 68% 68% at center, black 55%, transparent 100%)',
+              WebkitMaskImage: 'radial-gradient(ellipse 68% 68% at center, black 55%, transparent 100%)',
+            }}
           >
-            {/* Soft decorative ring behind the composition */}
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] aspect-square rounded-full border border-primary/15" aria-hidden="true" />
-
-            {/* Potted plant, behind the laptop's top-left corner */}
-            <Placeholder
-              ratio="1/1"
-              rounded="rounded-lg"
-              className="absolute left-6 top-2 w-11 shadow-md z-0"
+            <Image
+              src="/images/portfolio_hero.png"
+              alt="Product mockup — laptop and phone showing the app"
+              fill
+              priority
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className="object-contain"
             />
-
-            {/* Laptop / browser card */}
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-3 w-[76%] max-w-[400px] rounded-2xl card-surface shadow-xl overflow-hidden z-[5]">
-              <div className="flex items-center gap-1.5 px-4 py-3 border-b border-[hsl(var(--border))]">
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-300" />
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-300" />
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-300" />
-              </div>
-              <Placeholder ratio="16/10" rounded="rounded-none" label="Product dashboard" className="w-full" />
-            </div>
-
-            {/* Phone card */}
-            <div className="absolute right-0 sm:right-4 bottom-0 rotate-3 w-[124px] sm:w-[150px] rounded-[1.6rem] card-surface shadow-xl overflow-hidden border-4 border-white z-10">
-              <Placeholder ratio="9/19.5" rounded="rounded-none" label="App screen" className="w-full" />
-            </div>
-
-            {/* Floating labeled chips */}
-            <div className="absolute left-0 top-6 flex items-center gap-2 pl-2 pr-3 py-2 rounded-xl card-surface shadow-lg z-10">
-              <span className="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
-                <Globe className="w-3.5 h-3.5 text-primary" />
-              </span>
-              <span className="text-xs font-medium">Web Apps</span>
-            </div>
-            <div className="absolute right-10 sm:right-16 top-24 flex items-center gap-2 pl-2 pr-3 py-2 rounded-xl card-surface shadow-lg z-10">
-              <span className="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
-                <Smartphone className="w-3.5 h-3.5 text-primary" />
-              </span>
-              <span className="text-xs font-medium">Mobile Apps</span>
-            </div>
-            <div className="absolute left-4 bottom-8 w-9 h-9 rounded-lg card-surface shadow-lg flex items-center justify-center z-10">
-              <Code2 className="w-4 h-4 text-primary" />
-            </div>
-
-            {/* Code snippet chip */}
-            <div className="absolute right-2 top-0 w-32 rounded-xl bg-[#161328] shadow-lg px-3 py-2.5 font-mono text-[9px] leading-relaxed text-indigo-200/90 z-10">
-              <span className="text-pink-300">const</span> app = () =&gt;{'{'}
-              <br />
-              &nbsp;&nbsp;<span className="text-sky-300">return</span> &lt;div
-              <br />
-              &nbsp;&nbsp;className=&quot;app&quot;/&gt;
-            </div>
-
-            {/* Handwritten annotation */}
-            <p className="sticky-note absolute -bottom-2 right-6 sm:right-2 -rotate-3 z-20 text-primary/70 text-base whitespace-nowrap">
-              Ideas → Real Products
-            </p>
           </motion.div>
         </div>
 
@@ -186,8 +154,7 @@ export function Hero() {
             >
               <Icon className="w-5 h-5 text-primary mx-auto mb-2" />
               <div className="text-2xl sm:text-3xl font-bold font-heading">
-                {value}
-                {suffix}
+                <AnimatedCounter end={value} suffix={suffix} />
               </div>
               <p className="text-xs sm:text-sm text-muted-foreground mt-1">{label}</p>
             </div>

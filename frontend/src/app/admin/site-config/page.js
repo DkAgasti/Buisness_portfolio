@@ -59,25 +59,38 @@ export default function SiteConfigPage() {
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin" /></div>;
 
   const fields = [
-    { key: 'name', label: 'Full Name', type: 'text' },
-    { key: 'companyName', label: 'Company Name (navbar)', type: 'text' },
-    { key: 'role', label: 'Role / Title', type: 'text' },
-    { key: 'tagline', label: 'Tagline', type: 'text' },
-    { key: 'bio', label: 'Bio (About Me)', type: 'textarea' },
-    { key: 'location', label: 'Location', type: 'text' },
-    { key: 'email', label: 'Email', type: 'email' },
-    { key: 'phone', label: 'Phone', type: 'text' },
-    { key: 'whatsapp', label: 'WhatsApp', type: 'text' },
-    { key: 'github', label: 'GitHub URL', type: 'url' },
-    { key: 'linkedin', label: 'LinkedIn URL', type: 'url' },
-    { key: 'twitter', label: 'Twitter URL', type: 'url' },
-    { key: 'education', label: 'Education', type: 'text' },
-    { key: 'resumeUrl', label: 'Resume URL', type: 'url' },
-    { key: 'responseTime', label: 'Response Time', type: 'text' },
-    { key: 'stats_projects', label: 'Stats: Projects Count', type: 'number' },
-    { key: 'stats_clients', label: 'Stats: Clients Count', type: 'number' },
-    { key: 'stats_experience', label: 'Stats: Years Experience', type: 'number' },
+    { key: 'name', label: 'Full Name', type: 'text', section: 'Profile' },
+    { key: 'role', label: 'Role / Title', type: 'text', section: 'Profile' },
+    { key: 'bio', label: 'Bio (About Me)', type: 'textarea', section: 'Profile' },
+    { key: 'about_tech_tags', label: 'About: Tech Tags (comma separated)', type: 'text', section: 'Profile' },
+    { key: 'location', label: 'Location', type: 'text', section: 'Profile' },
+
+    { key: 'email', label: 'Email', type: 'email', section: 'Contact & Socials' },
+    { key: 'whatsapp', label: 'WhatsApp', type: 'text', section: 'Contact & Socials' },
+    { key: 'responseTime', label: 'Response Time', type: 'text', section: 'Contact & Socials' },
+    { key: 'github', label: 'GitHub URL', type: 'url', section: 'Contact & Socials' },
+    { key: 'linkedin', label: 'LinkedIn URL', type: 'url', section: 'Contact & Socials' },
+    { key: 'twitter', label: 'Twitter / X URL', type: 'url', section: 'Contact & Socials' },
+    { key: 'instagram', label: 'Instagram URL', type: 'url', section: 'Contact & Socials' },
+
+    { key: 'stats_projects', label: 'Stats: Projects Count', type: 'number', section: 'Stats' },
+    { key: 'stats_clients', label: 'Stats: Clients Count', type: 'number', section: 'Stats' },
+    { key: 'stats_experience', label: 'Stats: Years Experience', type: 'number', section: 'Stats' },
+    { key: 'stats_satisfaction', label: 'Stats: Client Satisfaction %', type: 'number', section: 'Stats' },
+
+    { key: 'hero_badge', label: 'Hero: Badge Text', type: 'text', section: 'Hero Section' },
+    { key: 'hero_headline', label: 'Hero: Headline', type: 'text', section: 'Hero Section' },
+    { key: 'hero_subtext', label: 'Hero: Subheading', type: 'textarea', section: 'Hero Section' },
+    { key: 'hero_trusted_text', label: 'Hero: Trust Line', type: 'text', section: 'Hero Section' },
+
+    { key: 'why_heading', label: 'Why Section: Heading', type: 'textarea', section: 'Why Work With Me' },
+
+    { key: 'cta_eyebrow', label: 'Closing CTA: Eyebrow Text', type: 'text', section: 'Closing CTA' },
+    { key: 'cta_headline', label: 'Closing CTA: Headline', type: 'text', section: 'Closing CTA' },
+    { key: 'cta_text', label: 'Closing CTA: Paragraph', type: 'textarea', section: 'Closing CTA' },
   ];
+
+  let lastSection = null;
 
   return (
     <div>
@@ -93,7 +106,7 @@ export default function SiteConfigPage() {
         <div>
           <label className="block text-sm font-medium mb-1.5 text-muted-foreground">Profile Image (About Me)</label>
           <div className="flex items-center gap-4">
-            <div className="relative w-24 h-24 rounded-2xl overflow-hidden border border-white/10 bg-white/5 flex items-center justify-center flex-shrink-0">
+            <div className="relative w-24 h-24 rounded-2xl overflow-hidden border border-border bg-muted/60 flex items-center justify-center flex-shrink-0">
               {config?.avatar ? (
                 <img src={config.avatar} alt="Profile" className="w-full h-full object-cover" />
               ) : (
@@ -113,7 +126,7 @@ export default function SiteConfigPage() {
                   type="button"
                   onClick={() => fileRef.current?.click()}
                   disabled={uploading}
-                  className="inline-flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm hover:bg-white/10 disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-3 py-2 bg-muted/60 border border-border rounded-lg text-sm hover:bg-muted disabled:opacity-50"
                 >
                   {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                   {config?.avatar ? 'Change image' : 'Upload image'}
@@ -122,7 +135,7 @@ export default function SiteConfigPage() {
                   <button
                     type="button"
                     onClick={() => setConfig({ ...config, avatar: '' })}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-sm hover:bg-red-500/20"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-red-500/10 border border-red-500/20 text-red-600 rounded-lg text-sm hover:bg-red-500/20"
                   >
                     <X className="w-4 h-4" /> Remove
                   </button>
@@ -133,19 +146,26 @@ export default function SiteConfigPage() {
           </div>
         </div>
 
-        {fields.map(f => (
-          <div key={f.key}>
-            <label className="block text-sm font-medium mb-1.5 text-muted-foreground">{f.label}</label>
-            {f.type === 'textarea' ? (
-              <textarea value={config?.[f.key] || ''} onChange={e => setConfig({...config, [f.key]: e.target.value})} rows={4}
-                className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm resize-none" />
-            ) : (
-              <input type={f.type} value={config?.[f.key] || ''}
-                onChange={e => setConfig({...config, [f.key]: f.type === 'number' ? parseInt(e.target.value) || 0 : e.target.value})}
-                className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm" />
-            )}
-          </div>
-        ))}
+        {fields.map(f => {
+          const showHeading = f.section !== lastSection;
+          lastSection = f.section;
+          return (
+            <div key={f.key}>
+              {showHeading && (
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/70 pt-2 pb-1 first:pt-0">{f.section}</h4>
+              )}
+              <label className="block text-sm font-medium mb-1.5 text-muted-foreground">{f.label}</label>
+              {f.type === 'textarea' ? (
+                <textarea value={config?.[f.key] || ''} onChange={e => setConfig({...config, [f.key]: e.target.value})} rows={4}
+                  className="w-full px-3 py-2.5 rounded-lg bg-muted/60 border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm resize-none" />
+              ) : (
+                <input type={f.type} value={config?.[f.key] || ''}
+                  onChange={e => setConfig({...config, [f.key]: f.type === 'number' ? parseInt(e.target.value) || 0 : e.target.value})}
+                  className="w-full px-3 py-2.5 rounded-lg bg-muted/60 border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm" />
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

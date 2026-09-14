@@ -5,6 +5,7 @@ import { ScrollReveal } from '@/components/ScrollReveal';
 import { Placeholder } from '@/components/ui/placeholder';
 import { DEFAULT_NAME, DEFAULT_ROLE } from '@/lib/identity';
 import { CONTAINER } from '@/lib/container';
+import { AnimatedCounter } from '@/components/ui/animated-counter';
 
 const TECH = ['React', 'Next.js', 'Node.js', 'MongoDB', 'Expo', 'Figma'];
 
@@ -30,7 +31,9 @@ export function About() {
   return (
     <section id="about" className="py-14 sm:py-16 lg:py-20" data-testid="about-section">
       <div className={CONTAINER}>
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,260px)_1fr_minmax(0,220px)] gap-10 lg:gap-8 items-start">
+        {/* Capped and centered so the middle text column can't stretch the
+            portrait and stats card far apart on wide screens. */}
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,260px)_1fr_minmax(0,220px)] gap-10 lg:gap-12 items-start max-w-6xl mx-auto">
           {/* Portrait */}
           <ScrollReveal>
             <div className="relative w-full max-w-[260px] mx-auto lg:mx-0">
@@ -62,9 +65,10 @@ export function About() {
             </a>
           </ScrollReveal>
 
-          {/* Stats card */}
-          <ScrollReveal delay={0.15} className="relative">
-            <div className="card-surface rounded-2xl p-5 flex flex-col divide-y divide-[hsl(var(--border))]">
+          {/* Stats card — stretched to match the bio column's height so its
+              bottom edge lines up with the "More about me" button. */}
+          <ScrollReveal delay={0.15} className="relative self-stretch h-full">
+            <div className="card-surface rounded-2xl p-5 h-full flex flex-col justify-center divide-y divide-[hsl(var(--border))] xl:relative xl:-right-28">
               {stats.map((s) => (
                 <div key={s.label} className="flex items-center gap-3 py-3.5 first:pt-0 last:pb-0">
                   <div className="w-10 h-10 rounded-xl bg-[hsl(var(--muted))] flex items-center justify-center flex-shrink-0">
@@ -72,15 +76,14 @@ export function About() {
                   </div>
                   <div>
                     <div className="text-lg font-bold font-heading leading-tight">
-                      {s.value}
-                      {s.suffix}
+                      <AnimatedCounter end={s.value} suffix={s.suffix} />
                     </div>
                     <p className="text-xs text-muted-foreground leading-tight">{s.label}</p>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="sticky-note absolute -bottom-5 -right-2 rotate-2 bg-white card-surface rounded-lg px-4 py-2 whitespace-nowrap">
+            <div className="sticky-note absolute -bottom-5 -right-2 xl:-right-8 rotate-6 bg-white card-surface rounded-lg px-4 py-2 whitespace-nowrap">
               Let&apos;s build something great
             </div>
           </ScrollReveal>

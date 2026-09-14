@@ -99,7 +99,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <Link href="/admin/login" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to Login
@@ -122,7 +122,7 @@ export default function ForgotPassword() {
           </div>
 
           {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{error}</div>
+            <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-600 text-sm">{error}</div>
           )}
 
           {/* Step 1: OTP only */}
@@ -133,7 +133,7 @@ export default function ForgotPassword() {
                 <input
                   type="text" value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} required
                   maxLength={6} inputMode="numeric" autoFocus
-                  className="w-full px-3 py-3 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-foreground text-center text-xl font-bold tracking-[8px] focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  className="w-full px-3 py-3 rounded-lg bg-gray-50 dark:bg-muted/60 border border-gray-200 dark:border-border text-foreground text-center text-xl font-bold tracking-[8px] focus:outline-none focus:ring-2 focus:ring-primary/50"
                   placeholder="000000"
                 />
                 <button type="button" onClick={resendOtp} disabled={sending}
@@ -156,7 +156,7 @@ export default function ForgotPassword() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required minLength={6}
-                    className="w-full pl-10 pr-3 py-2.5 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                    className="w-full pl-10 pr-3 py-2.5 rounded-lg bg-gray-50 dark:bg-muted/60 border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
                     placeholder="Min 6 characters" />
                 </div>
               </div>
@@ -165,7 +165,7 @@ export default function ForgotPassword() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={6}
-                    className="w-full pl-10 pr-3 py-2.5 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                    className="w-full pl-10 pr-3 py-2.5 rounded-lg bg-gray-50 dark:bg-muted/60 border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
                     placeholder="Repeat password" />
                 </div>
               </div>

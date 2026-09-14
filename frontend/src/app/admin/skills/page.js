@@ -74,24 +74,24 @@ export default function SkillsPage() {
                 const updated = {...skill, category: e.target.value};
                 setSkills(skills.map(s => (s._id||s.id)===(skill._id||skill.id) ? updated : s));
               }} onBlur={() => updateSkill(skill._id||skill.id, skill)}
-                className="text-lg font-semibold font-heading bg-transparent border-b border-transparent focus:border-white/20 focus:outline-none" />
-              <button onClick={() => deleteSkill(skill._id||skill.id)} className="p-2 hover:bg-red-500/10 rounded-lg text-red-400">
+                className="text-lg font-semibold font-heading bg-transparent border-b border-transparent focus:border-primary/40 focus:outline-none" />
+              <button onClick={() => deleteSkill(skill._id||skill.id)} className="p-2 hover:bg-red-500/10 rounded-lg text-red-600">
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
             <div className="flex flex-wrap gap-2 mb-3">
               {skill.items.map((item, idx) => (
-                <span key={idx} className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg bg-white/5 border border-white/10">
+                <span key={idx} className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg bg-muted/60 border border-border">
                   {item}
-                  <button onClick={() => removeItem(skill, idx)} className="hover:text-red-400"><X className="w-3 h-3" /></button>
+                  <button onClick={() => removeItem(skill, idx)} className="hover:text-red-600"><X className="w-3 h-3" /></button>
                 </span>
               ))}
             </div>
             <div className="flex gap-2">
               <input value={newItem} onChange={e => setNewItem(e.target.value)} placeholder="Add technology..."
                 onKeyDown={e => e.key === 'Enter' && addItem(skill)}
-                className="flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
-              <button onClick={() => addItem(skill)} className="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm">
+                className="flex-1 px-3 py-2 rounded-lg bg-muted/60 border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
+              <button onClick={() => addItem(skill)} className="px-3 py-2 bg-muted/60 hover:bg-muted border border-border rounded-lg text-sm">
                 <Plus className="w-4 h-4" />
               </button>
             </div>

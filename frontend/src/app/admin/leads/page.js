@@ -50,7 +50,7 @@ export default function LeadsPage() {
                   </p>
                 </div>
               </div>
-              <button onClick={() => deleteItem(item._id || item.id)} className="p-2 hover:bg-red-500/10 rounded-lg text-red-400">
+              <button onClick={() => deleteItem(item._id || item.id)} className="p-2 hover:bg-red-500/10 rounded-lg text-red-600">
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>

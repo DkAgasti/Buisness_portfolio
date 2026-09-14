@@ -12,6 +12,7 @@ import { LoadingScreen } from '@/components/LoadingScreen';
 import { PageTransition } from '@/components/PageTransition';
 import { EmailGate } from '@/components/EmailGate';
 import { ContactModal } from '@/components/ContactModal';
+import { TestimonialModal } from '@/components/TestimonialModal';
 
 export default function Home() {
   return (
@@ -35,6 +36,7 @@ export default function Home() {
         <Footer />
       </EmailGate>
       <ContactModal />
+      <TestimonialModal />
     </>
   );
 }

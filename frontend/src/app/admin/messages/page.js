@@ -52,11 +52,11 @@ export default function MessagesPage() {
                     </span>
                   </div>
                   <div className="ml-11">
-                    <span className="px-2 py-0.5 text-xs rounded bg-white/5 border border-white/10 mr-2">{item.project_type}</span>
+                    <span className="px-2 py-0.5 text-xs rounded bg-muted/60 border border-border mr-2">{item.project_type}</span>
                     <p className="text-sm text-muted-foreground mt-2">{item.message}</p>
                   </div>
                 </div>
-                <button onClick={() => deleteItem(item._id||item.id)} className="p-2 hover:bg-red-500/10 rounded-lg text-red-400 ml-3"><Trash2 className="w-4 h-4" /></button>
+                <button onClick={() => deleteItem(item._id||item.id)} className="p-2 hover:bg-red-500/10 rounded-lg text-red-600 ml-3"><Trash2 className="w-4 h-4" /></button>
               </div>
             </div>
           ))}

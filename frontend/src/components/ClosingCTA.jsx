@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { ScrollReveal } from '@/components/ScrollReveal';
 import { openContactModal } from '@/components/ContactModal';
@@ -11,14 +12,13 @@ export function ClosingCTA() {
       <div className={CONTAINER}>
         <ScrollReveal>
           <div className="relative overflow-hidden rounded-3xl bg-[hsl(var(--band))] px-6 py-10 sm:px-12 sm:py-14">
-            <svg
-              className="absolute -left-10 -bottom-10 w-40 h-40 text-primary/10 pointer-events-none"
-              viewBox="0 0 200 200"
-              fill="currentColor"
+            <Image
+              src="/images/Footer_image.png"
+              alt=""
+              fill
               aria-hidden="true"
-            >
-              <path d="M45,-59.4C58.3,-49.8,68.9,-35.9,73.6,-19.9C78.3,-3.9,77.1,14.2,69.4,29.1C61.7,44,47.5,55.7,31.7,63.4C15.9,71.1,-1.5,74.8,-18.1,71.4C-34.7,68,-50.5,57.5,-60.9,43.1C-71.3,28.7,-76.3,10.4,-74.1,-6.7C-71.9,-23.8,-62.5,-39.7,-49.3,-49.5C-36.1,-59.3,-19.1,-63,-1.5,-61C16.1,-59,31.7,-69,45,-59.4Z" transform="translate(100 100)" />
-            </svg>
+              className="object-cover pointer-events-none"
+            />
 
             <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-10">
               <div className="md:flex-1">
