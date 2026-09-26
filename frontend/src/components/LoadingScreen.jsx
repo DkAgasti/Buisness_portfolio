@@ -29,7 +29,7 @@ export function LoadingScreen() {
   const [progress, setProgress] = useState(0);
   const { siteConfig } = useContent();
   const config = siteConfig || {};
-  const logo = config.avatar || config.photo || config.profileImage || config.image;
+  const logo = config.logo || config.avatar || config.photo || config.profileImage || config.image;
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), TOTAL_DURATION);

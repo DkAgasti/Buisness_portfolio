@@ -74,6 +74,14 @@ h1, h2, h3, h4, h5, h6 {
   background: hsl(var(--primary) / 0.6);
 }
 
+/* Everything below is wrapped in the components layer (rather than left
+   unlayered) so that Tailwind utility classes — e.g. `hidden lg:inline-flex`
+   on a `.btn-primary` — always win the cascade regardless of source order.
+   Component classes and Tailwind utilities have equal specificity, so an
+   unlayered component class placed after `@tailwind utilities` would
+   otherwise silently beat any utility applied alongside it. */
+@layer components {
+
 /* ============================================================
    TEXT + SURFACES
    ============================================================ */
@@ -173,11 +181,14 @@ h1, h2, h3, h4, h5, h6 {
    transparent and spread out at the top, matching the light theme.
    ============================================================ */
 .nav-glass {
-  background: hsl(var(--card) / 0.72);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-  border: 1px solid hsl(var(--border) / 0.8);
-  box-shadow: 0 12px 32px -16px rgba(30, 20, 70, 0.18);
+  position: relative;
+  background: linear-gradient(180deg, hsl(var(--card) / 0.32), hsl(var(--card) / 0.16));
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid hsl(var(--card) / 0.45);
+  box-shadow:
+    0 12px 32px -16px rgba(30, 20, 70, 0.22),
+    inset 0 1px 0 hsl(var(--card) / 0.65);
 }
 
 .brand-underline {
@@ -274,6 +285,33 @@ button:focus-visible,
   animation: shimmer 1.6s infinite;
 }
 
+/* Services: slow, continuous right-to-left marquee (pauses on hover) */
+@keyframes services-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.services-marquee-track {
+  animation: services-marquee 32s linear infinite;
+}
+.services-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* Tech stack: two rows drifting in opposite directions (pause on hover) */
+@keyframes tech-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.tech-marquee-track {
+  animation: tech-marquee 36s linear infinite;
+}
+.tech-marquee-track.tech-marquee-reverse {
+  animation-direction: reverse;
+}
+.tech-marquee-track:hover {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -281,4 +319,12 @@ button:focus-visible,
   .shimmer::after {
     animation: none !important;
   }
+  .services-marquee-track {
+    animation: none !important;
+  }
+  .tech-marquee-track {
+    animation: none !important;
+  }
 }
+
+} /* end @layer components */

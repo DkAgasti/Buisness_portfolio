@@ -40,8 +40,8 @@ export default function TestimonialsPage() {
           {items.map(item => (
             <div key={item._id||item.id} className="glass rounded-xl p-4">
               <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <span className="font-medium">{item.name}</span>
                     <div className="flex gap-0.5">
                       {[1,2,3,4,5].map(s => <Star key={s} className={`w-3 h-3 ${s<=item.rating?'fill-yellow-400 text-yellow-400':'text-muted-foreground/40'}`} />)}
@@ -50,9 +50,9 @@ export default function TestimonialsPage() {
                       {item.created_at ? formatDistanceToNow(new Date(item.created_at), { addSuffix: true }) : ''}
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground">&ldquo;{item.message}&rdquo;</p>
+                  <p className="text-sm text-muted-foreground break-words">&ldquo;{item.message}&rdquo;</p>
                 </div>
-                <button onClick={() => deleteItem(item._id||item.id)} className="p-2 hover:bg-red-500/10 rounded-lg text-red-600 ml-3"><Trash2 className="w-4 h-4" /></button>
+                <button onClick={() => deleteItem(item._id||item.id)} className="p-2 hover:bg-red-500/10 rounded-lg text-red-600 ml-3 flex-shrink-0"><Trash2 className="w-4 h-4" /></button>
               </div>
             </div>
           ))}

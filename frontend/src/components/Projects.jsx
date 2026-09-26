@@ -1,29 +1,45 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { AnimatePresence } from 'framer-motion';
 import { ArrowRight, ArrowUpRight, TrendingUp } from 'lucide-react';
 import { ScrollReveal } from '@/components/ScrollReveal';
 import { ProjectCard } from '@/components/ProjectCard';
 import { ProjectModal } from '@/components/ProjectModal';
 import { Placeholder } from '@/components/ui/placeholder';
-import { PROJECTS } from '@/lib/projects-data';
+import { useContent } from '@/components/ContentProvider';
+import { getCover, realUrl } from '@/lib/project';
+import { PROJECTS as FALLBACK_PROJECTS } from '@/lib/projects-data';
 import { CONTAINER } from '@/lib/container';
 
-function FeaturedCard({ project, onOpen }) {
+function FeaturedCard({ project, onOpen, large = false }) {
+  const cover = getCover(project);
   return (
     <button
       onClick={() => onOpen(project)}
-      className="group w-full text-left relative rounded-2xl overflow-hidden h-full min-h-[420px] flex flex-col justify-end"
+      className={`group w-full text-left relative rounded-2xl overflow-hidden h-full flex flex-col justify-end ${
+        large ? 'min-h-[420px] sm:min-h-[520px]' : 'min-h-[420px]'
+      }`}
       data-testid="project-card"
       aria-label={`Open case study for ${project.name}`}
     >
-      <Placeholder
-        ratio={project.placeholderRatio || '4/5'}
-        rounded="rounded-none"
-        label={project.placeholderLabel}
-        className="absolute inset-0 w-full h-full group-hover:scale-105 transition-transform duration-500"
-      />
+      {realUrl(cover) ? (
+        <img
+          src={cover}
+          alt={project.name}
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+          decoding="async"
+        />
+      ) : (
+        <Placeholder
+          ratio={project.placeholderRatio || '4/5'}
+          rounded="rounded-none"
+          label={project.placeholderLabel}
+          className="absolute inset-0 w-full h-full group-hover:scale-105 transition-transform duration-500"
+        />
+      )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
 
       <span className="absolute top-4 left-4 px-3 py-1 text-[11px] rounded-full bg-primary text-white font-semibold uppercase tracking-wide">
@@ -55,13 +71,10 @@ function FeaturedCard({ project, onOpen }) {
 
 export function Projects() {
   const [selected, setSelected] = useState(null);
+  const { projects: adminProjects } = useContent();
+  const PROJECTS = Array.isArray(adminProjects) && adminProjects.length > 0 ? adminProjects : FALLBACK_PROJECTS;
   const featured = PROJECTS.find((p) => p.featured) || PROJECTS[0];
   const rest = PROJECTS.filter((p) => p !== featured);
-
-  const scrollToTop = (e) => {
-    e.preventDefault();
-    document.querySelector('#projects')?.scrollIntoView({ behavior: 'smooth' });
-  };
 
   return (
     <section id="projects" className="py-14 sm:py-16 lg:py-20" data-testid="projects-section">
@@ -75,24 +88,28 @@ export function Projects() {
                 A few of my recent projects. Each one was a unique challenge, and I&apos;m proud of the results.
               </p>
             </div>
-            <a href="#projects" onClick={scrollToTop} className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:gap-2.5 transition-all whitespace-nowrap">
+            <Link href="/work" className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:gap-2.5 transition-all whitespace-nowrap">
               View all projects
               <ArrowRight className="w-4 h-4" />
-            </a>
+            </Link>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.1}>
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-            <div className="lg:col-span-2">
-              <FeaturedCard project={featured} onOpen={setSelected} />
+          {rest.length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+              <div className="lg:col-span-2">
+                <FeaturedCard project={featured} onOpen={setSelected} />
+              </div>
+              <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {rest.map((project, i) => (
+                  <ProjectCard key={project._id || project.id || `${project.name}-${i}`} project={project} onOpen={setSelected} />
+                ))}
+              </div>
             </div>
-            <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {rest.map((project) => (
-                <ProjectCard key={project.id} project={project} onOpen={setSelected} />
-              ))}
-            </div>
-          </div>
+          ) : (
+            <FeaturedCard project={featured} onOpen={setSelected} large />
+          )}
         </ScrollReveal>
       </div>
 

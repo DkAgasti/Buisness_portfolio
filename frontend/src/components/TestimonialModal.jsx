@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AnimatePresence, motion } from 'framer-motion';
-import { X, Loader2, Send, Star } from 'lucide-react';
+import { X, Loader2, Send, Star, Upload, User } from 'lucide-react';
 import { toast } from 'sonner';
 
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || '';
@@ -13,12 +13,34 @@ export function TestimonialModal() {
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarFileRef = useRef(null);
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm();
+  const nameValue = watch('name');
+
+  const uploadAvatar = async (file) => {
+    if (!file) return;
+    setUploadingAvatar(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch(`${API_BASE}/api/testimonials/upload`, { method: 'POST', body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.url) throw new Error(data.detail || 'Failed to upload image');
+      setAvatarUrl(data.url);
+    } catch (err) {
+      toast.error(err.message || 'Failed to upload image');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   useEffect(() => {
     const handler = () => setOpen(true);
@@ -43,7 +65,7 @@ export function TestimonialModal() {
       const res = await fetch(`${API_BASE}/api/testimonials`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, rating }),
+        body: JSON.stringify({ ...data, rating, avatar: avatarUrl || undefined }),
       });
       if (!res.ok) {
         const err = await res.json();
@@ -52,6 +74,7 @@ export function TestimonialModal() {
       toast.success('Thank you for your review!');
       reset();
       setRating(5);
+      setAvatarUrl('');
       setOpen(false);
       window.dispatchEvent(new CustomEvent('testimonialAdded'));
     } catch (err) {
@@ -96,6 +119,51 @@ export function TestimonialModal() {
             <h3 className="text-2xl font-bold font-heading tracking-tight mb-6">What was it like working together?</h3>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1.5 text-muted-foreground">Photo (optional)</label>
+                <div className="flex items-center gap-3">
+                  <div className="relative w-12 h-12 rounded-full overflow-hidden bg-[hsl(var(--muted))] flex items-center justify-center flex-shrink-0">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt="Your photo" className="w-full h-full object-cover" />
+                    ) : nameValue?.trim() ? (
+                      <span className="text-sm font-semibold text-primary">
+                        {nameValue.trim()[0].toUpperCase()}
+                      </span>
+                    ) : (
+                      <User className="w-5 h-5 text-muted-foreground" />
+                    )}
+                  </div>
+                  <input
+                    ref={avatarFileRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => { uploadAvatar(e.target.files?.[0]); e.target.value = ''; }}
+                  />
+                  <button
+                    type="button"
+                    disabled={uploadingAvatar}
+                    onClick={() => avatarFileRef.current?.click()}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-[hsl(var(--border))] rounded-lg text-xs font-medium hover:bg-[hsl(var(--muted))] disabled:opacity-50 transition-colors"
+                  >
+                    {uploadingAvatar ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                    {avatarUrl ? 'Change' : 'Upload'}
+                  </button>
+                  {avatarUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setAvatarUrl('')}
+                      className="text-xs text-muted-foreground hover:text-red-500 transition-colors"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground/70 mt-1.5">
+                  No photo? We&apos;ll show the first letter of your name instead.
+                </p>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium mb-1.5 text-muted-foreground">Name</label>
                 <input

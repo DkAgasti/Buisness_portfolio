@@ -10,9 +10,6 @@ export default function sitemap() {
     { hash: '#services', priority: 0.8, freq: 'monthly' },
     { hash: '#process', priority: 0.7, freq: 'monthly' },
     { hash: '#about', priority: 0.7, freq: 'monthly' },
-    { hash: '#experience', priority: 0.6, freq: 'monthly' },
-    { hash: '#testimonials', priority: 0.6, freq: 'weekly' },
-    { hash: '#faq', priority: 0.6, freq: 'monthly' },
     { hash: '#contact', priority: 0.9, freq: 'monthly' },
   ];
 

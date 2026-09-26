@@ -8,6 +8,7 @@ import logging
 import hashlib
 import time
 import re
+import io
 import jwt
 import bcrypt
 import random
@@ -19,10 +20,17 @@ from pathlib import Path
 from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional, Dict
 from datetime import datetime, timezone, timedelta
-from bson import ObjectId, Binary
+from bson import ObjectId
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# Imported after load_dotenv(): the SDK reads CLOUDINARY_URL from the
+# environment at import time, not when .config() is called, so importing it
+# any earlier would silently leave api_key/cloud_name unset.
+import cloudinary
+import cloudinary.uploader
+cloudinary.config(secure=True)
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -122,6 +130,7 @@ class TestimonialCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=50)
     rating: int = Field(..., ge=1, le=5)
     message: str = Field(..., min_length=10, max_length=500)
+    avatar: Optional[str] = None
     @field_validator('name')
     @classmethod
     def clean_name(cls, v):
@@ -160,22 +169,29 @@ DEFAULT_SITE_CONFIG = {
     "key": "site_config",
     "name": "Alex Johnson",
     "role": "Full Stack Developer & Backend Engineer",
-    "tagline": "Building scalable backends that power great products",
     "location": "Bhubaneswar, Odisha, India",
     "email": "alex@example.com",
-    "phone": "+91 98765 43210",
     "whatsapp": "+91 98765 43210",
     "github": "https://github.com/alexjohnson",
     "linkedin": "https://linkedin.com/in/alexjohnson",
     "twitter": "https://twitter.com/alexjohnson",
-    "education": "MCA \u2013 KIIT University",
+    "instagram": "",
     "bio": "I'm a passionate Full Stack Developer with expertise in building robust, scalable backend systems and intuitive frontend interfaces. With years of experience working with startups and enterprises, I turn complex business requirements into elegant, performant code.",
-    "resumeUrl": "#",
     "responseTime": "Usually within 2 hours",
-    "companyName": "5YearCodePro",
     "stats_projects": 50,
     "stats_clients": 30,
     "stats_experience": 4,
+    "stats_satisfaction": 100,
+    "about_tech_tags": "React, Next.js, Node.js, MongoDB, Expo, Figma",
+    "hero_badge": "Available for new projects",
+    "hero_headline": "I turn ideas into digital experiences.",
+    "hero_subtext": "Websites, mobile apps and custom digital products \u2014 designed beautifully and built to perform.",
+    "hero_trusted_text": "Trusted by 10+ happy clients",
+    "cta_eyebrow": "Let's work together",
+    "cta_headline": "Have an idea? Let's build something great.",
+    "cta_text": "Get in touch and tell me about your project. I'll get back to you as soon as possible.",
+    "ai_knowledge_base": "",
+    "logo": "",
 }
 
 DEFAULT_SKILLS = [
@@ -183,11 +199,6 @@ DEFAULT_SKILLS = [
     {"category": "Database", "icon": "Database", "color": "from-green-500/20 to-green-600/10", "items": ["MongoDB", "PostgreSQL", "Redis", "Mongoose"], "order": 1},
     {"category": "Frontend", "icon": "Monitor", "color": "from-purple-500/20 to-purple-600/10", "items": ["React.js", "Next.js", "HTML5", "CSS3", "Tailwind CSS"], "order": 2},
     {"category": "DevOps & Tools", "icon": "Cloud", "color": "from-orange-500/20 to-orange-600/10", "items": ["Docker", "Git", "GitHub", "Vercel", "Linux", "JWT Auth", "WebSockets"], "order": 3},
-]
-
-DEFAULT_EXPERIENCE = [
-    {"company": "Vyakar Technologies Pvt. Ltd.", "role": "Backend Developer", "duration": "2023 \u2013 Present", "achievements": ["Designed and built RESTful APIs serving 100K+ daily requests", "Optimized database queries reducing response time by 60%", "Implemented microservices architecture with Docker containers", "Led backend team of 3 developers for enterprise CRM project"], "order": 0},
-    {"company": "VichaarLab", "role": "Full Stack Developer", "duration": "2022 \u2013 2023", "achievements": ["Built full-stack web applications using React and Node.js", "Integrated third-party APIs and payment gateways", "Developed real-time features using WebSocket technology", "Improved application performance by implementing Redis caching"], "order": 1},
 ]
 
 DEFAULT_PROJECTS = [
@@ -208,17 +219,6 @@ DEFAULT_SERVICES = [
     {"title": "Technical Consultation & Code Review", "description": "Expert guidance on architecture decisions, code quality, and technology stack selection.", "icon": "Search", "order": 5},
 ]
 
-DEFAULT_WHY = [
-    {"title": "Production-Ready Code", "description": "Typed, tested and reviewed — built to run in production, not just demos.", "icon": "ShieldCheck", "order": 0},
-    {"title": "Scalable Architecture", "description": "Systems designed to grow with your users, traffic and roadmap.", "icon": "Layers", "order": 1},
-    {"title": "Modern, Premium UI", "description": "Interfaces that feel fast, polished and intentional on every device.", "icon": "Sparkles", "order": 2},
-    {"title": "Fast Communication", "description": "Clear, frequent updates. You always know exactly where things stand.", "icon": "MessageSquare", "order": 3},
-    {"title": "AI Integration", "description": "Practical LLM and automation features that add real product value.", "icon": "Bot", "order": 4},
-    {"title": "Clean Backend", "description": "Well-structured APIs and data models that stay maintainable over time.", "icon": "Server", "order": 5},
-    {"title": "Responsive Development", "description": "Pixel-consistent experiences from mobile to ultrawide displays.", "icon": "Smartphone", "order": 6},
-    {"title": "Long-Term Support", "description": "I stick around after launch — monitoring, iterating and improving.", "icon": "LifeBuoy", "order": 7},
-]
-
 DEFAULT_PROCESS = [
     {"title": "Discovery", "description": "Understand goals, users and constraints before writing a line of code.", "icon": "Search", "order": 0},
     {"title": "Planning", "description": "Scope, architecture and a clear delivery roadmap we both agree on.", "icon": "ClipboardList", "order": 1},
@@ -227,21 +227,6 @@ DEFAULT_PROCESS = [
     {"title": "Testing", "description": "Validate behaviour, edge cases and performance before release.", "icon": "FlaskConical", "order": 4},
     {"title": "Deployment", "description": "Automated, reliable releases with monitoring from day one.", "icon": "Rocket", "order": 5},
     {"title": "Support", "description": "Post-launch iteration, maintenance and long-term partnership.", "icon": "Headphones", "order": 6},
-]
-
-DEFAULT_FAQS = [
-    {"q": "How long does a project take?", "a": "Small builds ship in 1–2 weeks; full products typically run 4–8 weeks depending on scope. You get a clear timeline before we start.", "order": 0},
-    {"q": "Which technologies do you use?", "a": "Mainly Next.js, React and TypeScript on the frontend, with FastAPI/Node and MongoDB/PostgreSQL on the backend — chosen to fit your product, not the other way around.", "order": 1},
-    {"q": "Can you work on existing projects?", "a": "Absolutely. I regularly join existing codebases to add features, fix issues, improve performance or refactor toward a cleaner architecture.", "order": 2},
-    {"q": "Do you provide post-launch support?", "a": "Yes. I offer ongoing maintenance, monitoring and iteration so your product keeps improving after launch.", "order": 3},
-    {"q": "Can you build AI applications?", "a": "Yes — from LLM-powered features and chat interfaces to retrieval and automation, integrated cleanly into a real product.", "order": 4},
-]
-
-DEFAULT_ROLES = [
-    {"text": "Full Stack Developer", "order": 0},
-    {"text": "Backend Engineer", "order": 1},
-    {"text": "Freelancer", "order": 2},
-    {"text": "API Specialist", "order": 3},
 ]
 
 async def seed_data():
@@ -262,12 +247,6 @@ async def seed_data():
         await db.skills.insert_many(DEFAULT_SKILLS)
         logging.info("Skills seeded")
 
-    # Seed experience
-    count = await db.experience.count_documents({})
-    if count == 0:
-        await db.experience.insert_many(DEFAULT_EXPERIENCE)
-        logging.info("Experience seeded")
-
     # Seed projects
     count = await db.projects.count_documents({})
     if count == 0:
@@ -280,29 +259,11 @@ async def seed_data():
         await db.services.insert_many(DEFAULT_SERVICES)
         logging.info("Services seeded")
 
-    # Seed "why work with me"
-    count = await db.why.count_documents({})
-    if count == 0:
-        await db.why.insert_many(DEFAULT_WHY)
-        logging.info("Why seeded")
-
     # Seed development process
     count = await db.process.count_documents({})
     if count == 0:
         await db.process.insert_many(DEFAULT_PROCESS)
         logging.info("Process seeded")
-
-    # Seed FAQs
-    count = await db.faqs.count_documents({})
-    if count == 0:
-        await db.faqs.insert_many(DEFAULT_FAQS)
-        logging.info("FAQs seeded")
-
-    # Seed hero roles
-    count = await db.roles.count_documents({})
-    if count == 0:
-        await db.roles.insert_many(DEFAULT_ROLES)
-        logging.info("Roles seeded")
 
 # ============ PUBLIC ROUTES ============
 
@@ -325,11 +286,6 @@ async def get_skills():
     docs = await db.skills.find({}, {"_id": 0}).sort("order", 1).to_list(100)
     return docs if docs else DEFAULT_SKILLS
 
-@api_router.get("/content/experience")
-async def get_experience():
-    docs = await db.experience.find({}, {"_id": 0}).sort("order", 1).to_list(100)
-    return docs if docs else DEFAULT_EXPERIENCE
-
 @api_router.get("/content/projects")
 async def get_projects():
     docs = await db.projects.find({}, {"_id": 0}).sort("order", 1).to_list(100)
@@ -340,27 +296,28 @@ async def get_services():
     docs = await db.services.find({}, {"_id": 0}).sort("order", 1).to_list(100)
     return docs if docs else DEFAULT_SERVICES
 
-@api_router.get("/content/why")
-async def get_why():
-    docs = await db.why.find({}, {"_id": 0}).sort("order", 1).to_list(100)
-    return docs if docs else DEFAULT_WHY
-
 @api_router.get("/content/process")
 async def get_process():
     docs = await db.process.find({}, {"_id": 0}).sort("order", 1).to_list(100)
     return docs if docs else DEFAULT_PROCESS
 
-@api_router.get("/content/faqs")
-async def get_faqs():
-    docs = await db.faqs.find({}, {"_id": 0}).sort("order", 1).to_list(100)
-    return docs if docs else DEFAULT_FAQS
-
-@api_router.get("/content/roles")
-async def get_roles():
-    docs = await db.roles.find({}, {"_id": 0}).sort("order", 1).to_list(100)
-    return docs if docs else DEFAULT_ROLES
-
 # Testimonials
+@api_router.post("/testimonials/upload")
+async def upload_testimonial_avatar(request: Request, file: UploadFile = File(...)):
+    """Public, rate-limited avatar upload for visitors leaving a review."""
+    forwarded = request.headers.get("x-forwarded-for")
+    ip = forwarded.split(",")[0].strip() if forwarded else request.client.host
+    ip_hash = get_ip_hash(ip)
+    if not check_rate_limit(ip_hash):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded. Please try again later.")
+    if file.content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(status_code=400, detail="Only image files are allowed")
+    contents = await file.read()
+    if len(contents) > MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=400, detail="Image too large (max 8 MB)")
+    url = _upload_to_cloudinary(contents, file.content_type, folder="portfolio/testimonials")
+    return {"success": True, "url": url}
+
 @api_router.post("/testimonials")
 async def create_testimonial(testimonial: TestimonialCreate, request: Request):
     forwarded = request.headers.get("x-forwarded-for")
@@ -368,7 +325,15 @@ async def create_testimonial(testimonial: TestimonialCreate, request: Request):
     ip_hash = get_ip_hash(ip)
     if not check_rate_limit(ip_hash):
         raise HTTPException(status_code=429, detail="Rate limit exceeded. Maximum 10 reviews per hour.")
-    doc = {"name": testimonial.name, "rating": testimonial.rating, "message": testimonial.message, "approved": True, "created_at": datetime.now(timezone.utc), "ip_hash": ip_hash}
+    doc = {
+        "name": testimonial.name,
+        "rating": testimonial.rating,
+        "message": testimonial.message,
+        "avatar": testimonial.avatar or None,
+        "approved": True,
+        "created_at": datetime.now(timezone.utc),
+        "ip_hash": ip_hash,
+    }
     result = await db.testimonials.insert_one(doc)
     doc['_id'] = result.inserted_id
     return {"success": True, "testimonial": serialize_doc(doc)}
@@ -602,34 +567,6 @@ async def admin_delete_skill(skill_id: str, admin=Depends(get_current_admin)):
     await db.skills.delete_one({"_id": ObjectId(skill_id)})
     return {"success": True}
 
-# Experience
-@api_router.get("/admin/experience")
-async def admin_get_experience(admin=Depends(get_current_admin)):
-    docs = await db.experience.find().sort("order", 1).to_list(100)
-    return [serialize_doc(d) for d in docs]
-
-@api_router.post("/admin/experience")
-async def admin_create_experience(request: Request, admin=Depends(get_current_admin)):
-    data = await request.json()
-    count = await db.experience.count_documents({})
-    data["order"] = count
-    result = await db.experience.insert_one(data)
-    data["_id"] = result.inserted_id
-    return {"success": True, "experience": serialize_doc(data)}
-
-@api_router.put("/admin/experience/{exp_id}")
-async def admin_update_experience(exp_id: str, request: Request, admin=Depends(get_current_admin)):
-    data = await request.json()
-    data.pop("_id", None)
-    data.pop("id", None)
-    await db.experience.update_one({"_id": ObjectId(exp_id)}, {"$set": data})
-    return {"success": True}
-
-@api_router.delete("/admin/experience/{exp_id}")
-async def admin_delete_experience(exp_id: str, admin=Depends(get_current_admin)):
-    await db.experience.delete_one({"_id": ObjectId(exp_id)})
-    return {"success": True}
-
 # Projects
 @api_router.get("/admin/projects")
 async def admin_get_projects(admin=Depends(get_current_admin)):
@@ -659,31 +596,37 @@ async def admin_delete_project(proj_id: str, admin=Depends(get_current_admin)):
     return {"success": True}
 
 # ============ MEDIA UPLOAD ============
+# New uploads go straight to Cloudinary (images + videos). The legacy
+# /api/media/{id} route below is kept so files uploaded before this change
+# (stored as raw bytes in MongoDB) keep working.
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"}
-MAX_UPLOAD_BYTES = 8 * 1024 * 1024  # 8 MB
+ALLOWED_VIDEO_TYPES = {"video/mp4", "video/webm", "video/quicktime", "video/x-matroska"}
+MAX_UPLOAD_BYTES = 8 * 1024 * 1024  # 8 MB, images
+MAX_VIDEO_BYTES = 100 * 1024 * 1024  # 100 MB, videos
+
+def _upload_to_cloudinary(contents: bytes, content_type: str, folder: str) -> str:
+    result = cloudinary.uploader.upload(
+        io.BytesIO(contents),
+        resource_type="video" if content_type in ALLOWED_VIDEO_TYPES else "image",
+        folder=folder,
+    )
+    return result["secure_url"]
 
 @api_router.post("/admin/upload")
-async def admin_upload_image(request: Request, file: UploadFile = File(...), admin=Depends(get_current_admin)):
-    if file.content_type not in ALLOWED_IMAGE_TYPES:
-        raise HTTPException(status_code=400, detail="Only image files are allowed")
+async def admin_upload_image(file: UploadFile = File(...), admin=Depends(get_current_admin)):
+    is_video = file.content_type in ALLOWED_VIDEO_TYPES
+    if not is_video and file.content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(status_code=400, detail="Only image or video files are allowed")
     contents = await file.read()
-    if len(contents) > MAX_UPLOAD_BYTES:
-        raise HTTPException(status_code=400, detail="Image too large (max 8 MB)")
-    # Store the file bytes directly in MongoDB (no local filesystem).
-    doc = {
-        "data": Binary(contents),
-        "content_type": file.content_type,
-        "filename": file.filename,
-        "created_at": datetime.now(timezone.utc),
-    }
-    result = await db.media.insert_one(doc)
-    # Absolute URL that serves the file back out of the DB.
-    url = str(request.base_url).rstrip('/') + f"/api/media/{result.inserted_id}"
+    limit = MAX_VIDEO_BYTES if is_video else MAX_UPLOAD_BYTES
+    if len(contents) > limit:
+        raise HTTPException(status_code=400, detail=f"File too large (max {limit // (1024*1024)} MB)")
+    url = _upload_to_cloudinary(contents, file.content_type, folder="portfolio")
     return {"success": True, "url": url}
 
 @api_router.get("/media/{media_id}")
 async def get_media(media_id: str):
-    """Serve an admin-uploaded file straight from MongoDB (public)."""
+    """Serve a pre-Cloudinary upload straight from MongoDB (public)."""
     try:
         oid = ObjectId(media_id)
     except Exception:
@@ -725,34 +668,6 @@ async def admin_delete_service(svc_id: str, admin=Depends(get_current_admin)):
     await db.services.delete_one({"_id": ObjectId(svc_id)})
     return {"success": True}
 
-# Why Work With Me
-@api_router.get("/admin/why")
-async def admin_get_why(admin=Depends(get_current_admin)):
-    docs = await db.why.find().sort("order", 1).to_list(100)
-    return [serialize_doc(d) for d in docs]
-
-@api_router.post("/admin/why")
-async def admin_create_why(request: Request, admin=Depends(get_current_admin)):
-    data = await request.json()
-    count = await db.why.count_documents({})
-    data["order"] = count
-    result = await db.why.insert_one(data)
-    data["_id"] = result.inserted_id
-    return {"success": True, "why": serialize_doc(data)}
-
-@api_router.put("/admin/why/{item_id}")
-async def admin_update_why(item_id: str, request: Request, admin=Depends(get_current_admin)):
-    data = await request.json()
-    data.pop("_id", None)
-    data.pop("id", None)
-    await db.why.update_one({"_id": ObjectId(item_id)}, {"$set": data})
-    return {"success": True}
-
-@api_router.delete("/admin/why/{item_id}")
-async def admin_delete_why(item_id: str, admin=Depends(get_current_admin)):
-    await db.why.delete_one({"_id": ObjectId(item_id)})
-    return {"success": True}
-
 # Development Process
 @api_router.get("/admin/process")
 async def admin_get_process(admin=Depends(get_current_admin)):
@@ -779,62 +694,6 @@ async def admin_update_process(item_id: str, request: Request, admin=Depends(get
 @api_router.delete("/admin/process/{item_id}")
 async def admin_delete_process(item_id: str, admin=Depends(get_current_admin)):
     await db.process.delete_one({"_id": ObjectId(item_id)})
-    return {"success": True}
-
-# FAQs
-@api_router.get("/admin/faqs")
-async def admin_get_faqs(admin=Depends(get_current_admin)):
-    docs = await db.faqs.find().sort("order", 1).to_list(100)
-    return [serialize_doc(d) for d in docs]
-
-@api_router.post("/admin/faqs")
-async def admin_create_faq(request: Request, admin=Depends(get_current_admin)):
-    data = await request.json()
-    count = await db.faqs.count_documents({})
-    data["order"] = count
-    result = await db.faqs.insert_one(data)
-    data["_id"] = result.inserted_id
-    return {"success": True, "faq": serialize_doc(data)}
-
-@api_router.put("/admin/faqs/{item_id}")
-async def admin_update_faq(item_id: str, request: Request, admin=Depends(get_current_admin)):
-    data = await request.json()
-    data.pop("_id", None)
-    data.pop("id", None)
-    await db.faqs.update_one({"_id": ObjectId(item_id)}, {"$set": data})
-    return {"success": True}
-
-@api_router.delete("/admin/faqs/{item_id}")
-async def admin_delete_faq(item_id: str, admin=Depends(get_current_admin)):
-    await db.faqs.delete_one({"_id": ObjectId(item_id)})
-    return {"success": True}
-
-# Hero Roles
-@api_router.get("/admin/roles")
-async def admin_get_roles(admin=Depends(get_current_admin)):
-    docs = await db.roles.find().sort("order", 1).to_list(100)
-    return [serialize_doc(d) for d in docs]
-
-@api_router.post("/admin/roles")
-async def admin_create_role(request: Request, admin=Depends(get_current_admin)):
-    data = await request.json()
-    count = await db.roles.count_documents({})
-    data["order"] = count
-    result = await db.roles.insert_one(data)
-    data["_id"] = result.inserted_id
-    return {"success": True, "role": serialize_doc(data)}
-
-@api_router.put("/admin/roles/{item_id}")
-async def admin_update_role(item_id: str, request: Request, admin=Depends(get_current_admin)):
-    data = await request.json()
-    data.pop("_id", None)
-    data.pop("id", None)
-    await db.roles.update_one({"_id": ObjectId(item_id)}, {"$set": data})
-    return {"success": True}
-
-@api_router.delete("/admin/roles/{item_id}")
-async def admin_delete_role(item_id: str, admin=Depends(get_current_admin)):
-    await db.roles.delete_one({"_id": ObjectId(item_id)})
     return {"success": True}
 
 # Testimonials Admin

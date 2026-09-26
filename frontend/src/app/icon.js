@@ -1,13 +1,11 @@
 import { ImageResponse } from 'next/og';
-import { readFileSync } from 'fs';
-import { join } from 'path';
 
 // Favicon — the real 5C brand mark on a white tile (stays legible on both
 // light and dark browser tabs, where a bare dark mark would disappear).
 export const size = { width: 64, height: 64 };
 export const contentType = 'image/png';
 
-const mark = `data:image/png;base64,${readFileSync(join(process.cwd(), 'public/mark.png')).toString('base64')}`;
+const mark = 'https://res.cloudinary.com/fexwwils/image/upload/v1790410089/portfolio/migrated/e3isrfaohx771itxat9e.png';
 
 export default function Icon() {
   return new ImageResponse(

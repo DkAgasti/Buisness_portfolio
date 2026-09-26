@@ -1,13 +1,11 @@
 import { ImageResponse } from 'next/og';
-import { readFileSync } from 'fs';
-import { join } from 'path';
 
 // Social share card (Open Graph). 1200×630 branded preview with the real logo.
-export const alt = '5YearCodePro — Full Stack Developer';
+export const alt = 'CodePro — Full Stack Developer';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
-const mark = `data:image/png;base64,${readFileSync(join(process.cwd(), 'public/mark.png')).toString('base64')}`;
+const mark = 'https://res.cloudinary.com/fexwwils/image/upload/v1790410089/portfolio/migrated/e3isrfaohx771itxat9e.png';
 
 export default function OpengraphImage() {
   return new ImageResponse(
@@ -65,7 +63,7 @@ export default function OpengraphImage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={mark} width={88} height={88} alt="" />
           </div>
-          <div style={{ color: '#e5e7eb', fontSize: 40, fontWeight: 600 }}>5YearCodePro</div>
+          <div style={{ color: '#e5e7eb', fontSize: 40, fontWeight: 600 }}>CodePro</div>
         </div>
 
         {/* Headline */}

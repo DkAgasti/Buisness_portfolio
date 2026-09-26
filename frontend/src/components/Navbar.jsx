@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import { navLinks } from '@/lib/nav';
@@ -22,16 +23,20 @@ export function Navbar() {
   const [activeSection, setActiveSection] = useState('');
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
   const { siteConfig } = useContent();
   const config = siteConfig || {};
-  const logo = config.avatar || config.photo || config.profileImage || config.image;
+  const logo = config.logo || config.avatar || config.photo || config.profileImage || config.image;
   const companyName = DEFAULT_NAME;
 
   useEffect(() => {
     const ids = navLinks.map((l) => l.href.replace('#', ''));
+    const isHome = pathname === '/';
 
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
+      if (!isHome) return;
 
       const line = window.innerHeight * 0.35;
       let current = ids[0];
@@ -56,6 +61,11 @@ export function Navbar() {
 
   const handleNavClick = (e, href) => {
     e.preventDefault();
+    if (pathname !== '/') {
+      router.push(`/${href}`);
+      setMobileOpen(false);
+      return;
+    }
     const el = document.querySelector(href);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
     setMobileOpen(false);
@@ -77,10 +87,14 @@ export function Navbar() {
           >
             {/* Logo — image only, no name text */}
             <a
-              href="#"
+              href="/"
               className="flex items-center"
               onClick={(e) => {
                 e.preventDefault();
+                if (pathname !== '/') {
+                  router.push('/');
+                  return;
+                }
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               aria-label="Back to top"
@@ -136,7 +150,7 @@ export function Navbar() {
 
             {/* Right Side */}
             <div className="flex items-center gap-2 sm:gap-3">
-              <button onClick={openContactModal} className="btn-primary hidden sm:inline-flex px-5 py-2.5 text-sm">
+              <button onClick={openContactModal} className="btn-primary hidden lg:inline-flex px-5 py-2.5 text-sm">
                 Start a Project
                 <ArrowRight className="w-4 h-4" />
               </button>

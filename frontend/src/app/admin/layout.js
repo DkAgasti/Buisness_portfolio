@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LayoutDashboard, User, Code2, Briefcase, FolderOpen, Wrench, MessageSquare, Mail, LogOut, ChevronLeft, Menu, Sparkles, Workflow, HelpCircle, Type } from 'lucide-react';
+import { LayoutDashboard, User, Code2, FolderOpen, Wrench, MessageSquare, Mail, LogOut, ChevronLeft, Menu, Workflow } from 'lucide-react';
 
 const API = process.env.NEXT_PUBLIC_BACKEND_URL || '';
 
@@ -11,13 +11,9 @@ const sidebarLinks = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Site Config', href: '/admin/site-config', icon: User },
   { name: 'Skills', href: '/admin/skills', icon: Code2 },
-  { name: 'Experience', href: '/admin/experience', icon: Briefcase },
   { name: 'Projects', href: '/admin/projects', icon: FolderOpen },
   { name: 'Services', href: '/admin/services', icon: Wrench },
-  { name: 'Why Work With Me', href: '/admin/why', icon: Sparkles },
   { name: 'Process', href: '/admin/process', icon: Workflow },
-  { name: 'FAQ', href: '/admin/faqs', icon: HelpCircle },
-  { name: 'Hero Roles', href: '/admin/roles', icon: Type },
   { name: 'Testimonials', href: '/admin/testimonials', icon: MessageSquare },
   { name: 'Messages', href: '/admin/messages', icon: Mail },
   { name: 'Leads', href: '/admin/leads', icon: User },

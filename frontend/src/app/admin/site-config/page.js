@@ -10,12 +10,13 @@ export default function SiteConfigPage() {
   const [config, setConfig] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const fileRef = useRef(null);
+  const [uploadingField, setUploadingField] = useState(null);
+  const avatarFileRef = useRef(null);
+  const logoFileRef = useRef(null);
 
-  const uploadImage = async (file) => {
+  const uploadImage = async (file, field) => {
     if (!file) return;
-    setUploading(true);
+    setUploadingField(field);
     try {
       const token = localStorage.getItem('admin_token');
       const fd = new FormData();
@@ -26,13 +27,14 @@ export default function SiteConfigPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || 'Upload failed');
-      setConfig((c) => ({ ...c, avatar: data.url }));
+      setConfig((c) => ({ ...c, [field]: data.url }));
       toast.success('Image uploaded — click Save Changes to apply');
     } catch (e) {
       toast.error(e.message || 'Upload failed');
     } finally {
-      setUploading(false);
-      if (fileRef.current) fileRef.current.value = '';
+      setUploadingField(null);
+      if (avatarFileRef.current) avatarFileRef.current.value = '';
+      if (logoFileRef.current) logoFileRef.current.value = '';
     }
   };
 
@@ -62,13 +64,11 @@ export default function SiteConfigPage() {
     { key: 'name', label: 'Full Name', type: 'text', section: 'Profile' },
     { key: 'role', label: 'Role / Title', type: 'text', section: 'Profile' },
     { key: 'bio', label: 'Bio (About Me)', type: 'textarea', section: 'Profile' },
-    { key: 'about_tech_tags', label: 'About: Tech Tags (comma separated)', type: 'text', section: 'Profile' },
     { key: 'location', label: 'Location', type: 'text', section: 'Profile' },
 
     { key: 'email', label: 'Email', type: 'email', section: 'Contact & Socials' },
     { key: 'whatsapp', label: 'WhatsApp', type: 'text', section: 'Contact & Socials' },
     { key: 'responseTime', label: 'Response Time', type: 'text', section: 'Contact & Socials' },
-    { key: 'github', label: 'GitHub URL', type: 'url', section: 'Contact & Socials' },
     { key: 'linkedin', label: 'LinkedIn URL', type: 'url', section: 'Contact & Socials' },
     { key: 'twitter', label: 'Twitter / X URL', type: 'url', section: 'Contact & Socials' },
     { key: 'instagram', label: 'Instagram URL', type: 'url', section: 'Contact & Socials' },
@@ -78,16 +78,14 @@ export default function SiteConfigPage() {
     { key: 'stats_experience', label: 'Stats: Years Experience', type: 'number', section: 'Stats' },
     { key: 'stats_satisfaction', label: 'Stats: Client Satisfaction %', type: 'number', section: 'Stats' },
 
-    { key: 'hero_badge', label: 'Hero: Badge Text', type: 'text', section: 'Hero Section' },
-    { key: 'hero_headline', label: 'Hero: Headline', type: 'text', section: 'Hero Section' },
-    { key: 'hero_subtext', label: 'Hero: Subheading', type: 'textarea', section: 'Hero Section' },
-    { key: 'hero_trusted_text', label: 'Hero: Trust Line', type: 'text', section: 'Hero Section' },
-
-    { key: 'why_heading', label: 'Why Section: Heading', type: 'textarea', section: 'Why Work With Me' },
-
-    { key: 'cta_eyebrow', label: 'Closing CTA: Eyebrow Text', type: 'text', section: 'Closing CTA' },
-    { key: 'cta_headline', label: 'Closing CTA: Headline', type: 'text', section: 'Closing CTA' },
-    { key: 'cta_text', label: 'Closing CTA: Paragraph', type: 'textarea', section: 'Closing CTA' },
+    {
+      key: 'ai_knowledge_base',
+      label: 'AI Chatbot Knowledge Base',
+      type: 'textarea',
+      rows: 18,
+      section: 'AI Chatbot',
+      hint: 'This is what the AI chat widget reads to answer visitor questions. Edit it here and click Save — no redeploy needed.',
+    },
   ];
 
   let lastSection = null;
@@ -102,7 +100,51 @@ export default function SiteConfigPage() {
         </button>
       </div>
       <div className="glass rounded-xl p-6 space-y-4">
-        {/* Profile image — shown in the About Me section */}
+        {/* Site logo — shown in the Navbar, Footer and Loading Screen */}
+        <div>
+          <label className="block text-sm font-medium mb-1.5 text-muted-foreground">Site Logo (Navbar, Footer, Loading Screen)</label>
+          <div className="flex items-center gap-4">
+            <div className="relative w-24 h-24 rounded-2xl overflow-hidden border border-border bg-muted/60 flex items-center justify-center flex-shrink-0">
+              {config?.logo ? (
+                <img src={config.logo} alt="Logo" className="w-full h-full object-contain" />
+              ) : (
+                <ImageIcon className="w-7 h-7 text-muted-foreground/50" />
+              )}
+            </div>
+            <div className="flex flex-col gap-2">
+              <input
+                ref={logoFileRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => uploadImage(e.target.files?.[0], 'logo')}
+              />
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => logoFileRef.current?.click()}
+                  disabled={uploadingField === 'logo'}
+                  className="inline-flex items-center gap-2 px-3 py-2 bg-muted/60 border border-border rounded-lg text-sm hover:bg-muted disabled:opacity-50"
+                >
+                  {uploadingField === 'logo' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  {config?.logo ? 'Change image' : 'Upload image'}
+                </button>
+                {config?.logo && (
+                  <button
+                    type="button"
+                    onClick={() => setConfig({ ...config, logo: '' })}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-red-500/10 border border-red-500/20 text-red-600 rounded-lg text-sm hover:bg-red-500/20"
+                  >
+                    <X className="w-4 h-4" /> Remove
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">JPG, PNG, WebP or GIF — up to 8 MB. Then click Save Changes.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Profile image — shown in the About Me section only */}
         <div>
           <label className="block text-sm font-medium mb-1.5 text-muted-foreground">Profile Image (About Me)</label>
           <div className="flex items-center gap-4">
@@ -115,20 +157,20 @@ export default function SiteConfigPage() {
             </div>
             <div className="flex flex-col gap-2">
               <input
-                ref={fileRef}
+                ref={avatarFileRef}
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={(e) => uploadImage(e.target.files?.[0])}
+                onChange={(e) => uploadImage(e.target.files?.[0], 'avatar')}
               />
               <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={() => fileRef.current?.click()}
-                  disabled={uploading}
+                  onClick={() => avatarFileRef.current?.click()}
+                  disabled={uploadingField === 'avatar'}
                   className="inline-flex items-center gap-2 px-3 py-2 bg-muted/60 border border-border rounded-lg text-sm hover:bg-muted disabled:opacity-50"
                 >
-                  {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  {uploadingField === 'avatar' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                   {config?.avatar ? 'Change image' : 'Upload image'}
                 </button>
                 {config?.avatar && (
@@ -155,9 +197,10 @@ export default function SiteConfigPage() {
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/70 pt-2 pb-1 first:pt-0">{f.section}</h4>
               )}
               <label className="block text-sm font-medium mb-1.5 text-muted-foreground">{f.label}</label>
+              {f.hint && <p className="text-xs text-muted-foreground/70 mb-1.5">{f.hint}</p>}
               {f.type === 'textarea' ? (
-                <textarea value={config?.[f.key] || ''} onChange={e => setConfig({...config, [f.key]: e.target.value})} rows={4}
-                  className="w-full px-3 py-2.5 rounded-lg bg-muted/60 border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm resize-none" />
+                <textarea value={config?.[f.key] || ''} onChange={e => setConfig({...config, [f.key]: e.target.value})} rows={f.rows || 4}
+                  className={`w-full px-3 py-2.5 rounded-lg bg-muted/60 border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm resize-none ${f.rows ? 'font-mono' : ''}`} />
               ) : (
                 <input type={f.type} value={config?.[f.key] || ''}
                   onChange={e => setConfig({...config, [f.key]: f.type === 'number' ? parseInt(e.target.value) || 0 : e.target.value})}

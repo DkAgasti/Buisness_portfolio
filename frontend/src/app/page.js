@@ -1,5 +1,6 @@
 import { Navbar } from '@/components/Navbar';
 import { Hero } from '@/components/Hero';
+import { TechStack } from '@/components/TechStack';
 import { Projects } from '@/components/Projects';
 import { Services } from '@/components/Services';
 import { WhyWorkWithMe } from '@/components/WhyWorkWithMe';
@@ -24,6 +25,7 @@ export default function Home() {
         <PageTransition>
           <main id="main">
             <Hero />
+            <TechStack />
             <Projects />
             <Services />
             <WhyWorkWithMe />

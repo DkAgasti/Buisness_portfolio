@@ -10,6 +10,7 @@ export const PROJECTS = [
     result: 'Increased user engagement by 100%',
     placeholderLabel: 'dakota-hero',
     placeholderRatio: '4/5',
+    placeholderGallery: ['dakota-home', 'dakota-booking', 'dakota-checkout', 'dakota-mobile'],
   },
   {
     id: 'cvpilot',
@@ -18,6 +19,7 @@ export const PROJECTS = [
     description: 'AI-powered resume & career platform',
     result: 'Helped 10k+ users build better resumes',
     placeholderLabel: 'cvpilot-preview',
+    placeholderGallery: ['cvpilot-editor', 'cvpilot-templates', 'cvpilot-ai-suggestions', 'cvpilot-export'],
   },
   {
     id: 'trall',
@@ -26,6 +28,7 @@ export const PROJECTS = [
     description: 'Event & community app',
     result: '50k+ downloads',
     placeholderLabel: 'trall-preview',
+    placeholderGallery: ['trall-feed', 'trall-event-page', 'trall-chat', 'trall-profile'],
   },
   {
     id: 'dakota-invite',
@@ -34,6 +37,7 @@ export const PROJECTS = [
     description: 'Event booking & guest management',
     result: 'Streamlined event booking process',
     placeholderLabel: 'dakota-invite-preview',
+    placeholderGallery: ['invite-guest-list', 'invite-rsvp', 'invite-dashboard'],
   },
   {
     id: 'featureable',
@@ -42,5 +46,6 @@ export const PROJECTS = [
     description: 'Google reviews & reputation platform',
     result: '200% more customer reviews',
     placeholderLabel: 'featureable-preview',
+    placeholderGallery: ['featureable-dashboard', 'featureable-widget', 'featureable-analytics'],
   },
 ];

@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowRight, Quote, Star } from "lucide-react";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { Placeholder } from "@/components/ui/placeholder";
 import { CONTAINER } from "@/lib/container";
-import { TESTIMONIALS } from "@/lib/testimonials-data";
+import { realUrl } from "@/lib/project";
 import { openTestimonialModal } from "@/components/TestimonialModal";
-import { useContent } from '@/components/ContentProvider';
-import { DEFAULT_NAME } from "@/lib/identity";
+
+const API = process.env.NEXT_PUBLIC_BACKEND_URL || '';
 
 function Stars({ rating }) {
   return (
@@ -23,23 +22,47 @@ function Stars({ rating }) {
   );
 }
 
+function Avatar({ name, avatar }) {
+  if (realUrl(avatar)) {
+    return (
+      <img
+        src={avatar}
+        alt={name}
+        className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+        loading="lazy"
+        decoding="async"
+      />
+    );
+  }
+  return (
+    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+      <span className="text-sm font-semibold text-primary">
+        {(name || '?').trim()[0]?.toUpperCase()}
+      </span>
+    </div>
+  );
+}
+
 export function Testimonials() {
   const trackRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [liveTestimonials, setLiveTestimonials] = useState([]);
 
-  const count = TESTIMONIALS.length;
-  const { siteConfig } = useContent();
-  const config = siteConfig || {};
-  const logo = config.avatar || config.photo || config.profileImage || config.image;
-  const avgRating = useMemo(() => {
-    if (!count) return 0;
-    return (
-      Math.round(
-        (TESTIMONIALS.reduce((sum, t) => sum + (t.rating || 0), 0) / count) *
-          10,
-      ) / 10
-    );
-  }, [count]);
+  const fetchLive = () => {
+    fetch(`${API}/api/testimonials`)
+      .then((r) => r.json())
+      .then((data) => setLiveTestimonials(Array.isArray(data.testimonials) ? data.testimonials : []))
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchLive();
+    window.addEventListener('testimonialAdded', fetchLive);
+    return () => window.removeEventListener('testimonialAdded', fetchLive);
+  }, []);
+
+  const testimonials = liveTestimonials;
+  const count = testimonials.length;
 
   const scrollToIndex = (i) => {
     const track = trackRef.current;
@@ -51,9 +74,6 @@ export function Testimonials() {
         behavior: "smooth",
       });
   };
-
-  const handlePrev = () => scrollToIndex(Math.max(0, activeIndex - 1));
-  const handleNext = () => scrollToIndex(Math.min(count - 1, activeIndex + 1));
 
   useEffect(() => {
     const track = trackRef.current;
@@ -83,8 +103,6 @@ export function Testimonials() {
       ?.scrollIntoView({ behavior: "smooth" });
   };
 
-  if (count === 0) return null;
-
   return (
     <section
       id="testimonials"
@@ -104,125 +122,60 @@ export function Testimonials() {
                 have to say about working with me.
               </p>
             </div>
-            <a
-              href="#testimonials"
-              onClick={scrollToTop}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:gap-2.5 transition-all whitespace-nowrap"
-            >
-              View all testimonials
-              <ArrowRight className="w-4 h-4" />
-            </a>
+            <div className="flex items-center gap-5">
+              <button
+                onClick={openTestimonialModal}
+                className="text-sm font-medium text-primary hover:opacity-80 transition-opacity whitespace-nowrap inline-flex items-center"
+                data-testid="leave-review-button"
+              >
+                Leave a Review
+                 <ArrowRight className="w-4 h-4" />
+              </button>
+              
+            </div>
           </div>
         </ScrollReveal>
 
-        <ScrollReveal delay={0.1}>
-          <div className="card-surface rounded-3xl p-5 sm:p-8">
-            <div className="grid grid-cols-1 lg:grid-cols-[220px_1px_1fr] gap-6 lg:gap-8 items-center">
-              {/* Rating summary */}
-              <div className="flex flex-row lg:flex-col items-center lg:items-start gap-4 lg:gap-3">
-                {/* <div className="w-11 h-11 rounded-xl overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-600 flex-shrink-0">
-                  <span className="text-sm font-bold text-white font-heading">
-                    {DEFAULT_NAME.split(' ').map((w) => w[0]).slice(0, 2).join('')}
-                  </span>
-                </div> */}
-                <div className="relative h-10 flex items-center justify-center flex-shrink-0">
-                  <img
-                    src={logo}
-                    alt={`logo`}
-                    className="h-full w-auto object-contain"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-3xl font-bold font-heading">
-                      {avgRating.toFixed(1)}
-                    </span>
-                    <Stars rating={Math.round(avgRating)} />
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Based on {count} review{count !== 1 ? "s" : ""}
-                  </p>
-                  <button
-                    onClick={openTestimonialModal}
-                    className="btn-primary mt-4 px-4 py-2 text-sm"
-                    data-testid="leave-review-button"
-                  >
-                    Leave a Review
-                  </button>
-                </div>
-              </div>
-
-              <div
-                className="hidden lg:block w-px h-full bg-[hsl(var(--border))]"
-                aria-hidden="true"
-              />
-
-              {/* Carousel */}
-              <div className="relative min-w-0">
+        {count > 0 ? (
+          <ScrollReveal delay={0.1}>
+            <div
+              ref={trackRef}
+              className="flex gap-5 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth"
+              data-testid="testimonials-carousel"
+            >
+              {testimonials.map((t, i) => (
                 <div
-                  ref={trackRef}
-                  className="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth"
-                  data-testid="testimonials-carousel"
+                  key={t._id || t.id || i}
+                  className="snap-start shrink-0 min-w-0 w-[85%] sm:w-[calc((100%-2.5rem)/3)] card-surface rounded-2xl p-6 flex flex-col"
+                  data-testid="testimonial-card"
                 >
-                  {TESTIMONIALS.map((t) => (
-                    <div
-                      key={t.id}
-                      className="snap-start shrink-0 w-[85%] sm:w-[300px] card-surface rounded-2xl p-5 flex flex-col"
-                      data-testid="testimonial-card"
-                    >
-                      <div className="flex items-center gap-3 mb-3">
-                        <Placeholder
-                          ratio="1/1"
-                          rounded="rounded-full"
-                          className="w-10 flex-shrink-0"
-                        />
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold truncate">
-                            {t.name}
-                          </p>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {t.role}
-                          </p>
-                        </div>
-                      </div>
-                      <Stars rating={t.rating} />
-                      <p className="text-sm text-muted-foreground leading-relaxed mt-3">
-                        {t.message}
-                      </p>
+                  <div className="flex items-start justify-between mb-3">
+                    <Quote className="w-6 h-6 text-primary/60 flex-shrink-0" />
+                    {t.rating && <Stars rating={t.rating} />}
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed flex-1 break-words">
+                    &ldquo;{t.message}&rdquo;
+                  </p>
+                  <div className="flex items-center gap-3 mt-5">
+                    <Avatar name={t.name} avatar={t.avatar} />
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold truncate">{t.name}</p>
+                      {t.role && (
+                        <p className="text-xs text-muted-foreground truncate">
+                          {t.role}
+                        </p>
+                      )}
                     </div>
-                  ))}
+                  </div>
                 </div>
-
-                {count > 1 && (
-                  <>
-                    <button
-                      onClick={handlePrev}
-                      disabled={activeIndex === 0}
-                      aria-label="Previous review"
-                      className="hidden sm:flex absolute -left-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white border border-[hsl(var(--border))] items-center justify-center shadow-md disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[hsl(var(--muted))] transition-colors"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={handleNext}
-                      disabled={activeIndex === count - 1}
-                      aria-label="Next review"
-                      className="hidden sm:flex absolute -right-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white border border-[hsl(var(--border))] items-center justify-center shadow-md disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[hsl(var(--muted))] transition-colors"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </>
-                )}
-              </div>
+              ))}
             </div>
 
             {count > 1 && (
-              <div className="flex justify-center gap-2 mt-6">
-                {TESTIMONIALS.map((t, i) => (
+              <div className="flex justify-center gap-2 mt-8">
+                {testimonials.map((t, i) => (
                   <button
-                    key={t.id}
+                    key={t._id || t.id || i}
                     onClick={() => scrollToIndex(i)}
                     aria-label={`Go to review ${i + 1}`}
                     className={`h-2 rounded-full transition-all ${i === activeIndex ? "w-6 bg-primary" : "w-2 bg-[hsl(var(--border))]"}`}
@@ -230,8 +183,17 @@ export function Testimonials() {
                 ))}
               </div>
             )}
-          </div>
-        </ScrollReveal>
+          </ScrollReveal>
+        ) : (
+          <ScrollReveal delay={0.1}>
+            <div
+              className="card-surface rounded-2xl p-10 text-center text-muted-foreground text-sm"
+              data-testid="testimonials-empty"
+            >
+              No reviews yet — be the first to leave one.
+            </div>
+          </ScrollReveal>
+        )}
       </div>
     </section>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import { Github, Linkedin, X, Instagram, Mail } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
 import { navLinks } from '@/lib/nav';
 import { useContent } from '@/components/ContentProvider';
 import { realUrl } from '@/lib/project';
@@ -11,15 +12,20 @@ export function Footer() {
   const { siteConfig } = useContent();
   const config = siteConfig || {};
   const role = config.role || '';
-  const logo = config.avatar || config.photo || config.profileImage || config.image;
+  const logo = config.logo || config.avatar || config.photo || config.profileImage || config.image;
+  const router = useRouter();
+  const pathname = usePathname();
 
   const handleNavClick = (e, href) => {
     e.preventDefault();
+    if (pathname !== '/') {
+      router.push(`/${href}`);
+      return;
+    }
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const socials = [
-    { icon: Github, href: realUrl(config.github) ? config.github : '#', label: 'GitHub' },
     { icon: Linkedin, href: realUrl(config.linkedin) ? config.linkedin : '#', label: 'LinkedIn' },
     { icon: X, href: realUrl(config.twitter) ? config.twitter : '#', label: 'X' },
     { icon: Instagram, href: realUrl(config.instagram) ? config.instagram : '#', label: 'Instagram' },
@@ -31,10 +37,14 @@ export function Footer() {
       <div className={`${CONTAINER} py-10`}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-8">
           <a
-            href="#"
+            href="/"
             className="items-center gap-2.5"
             onClick={(e) => {
               e.preventDefault();
+              if (pathname !== '/') {
+                router.push('/');
+                return;
+              }
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
           >

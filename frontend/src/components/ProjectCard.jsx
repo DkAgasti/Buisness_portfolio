@@ -2,8 +2,10 @@
 
 import { ArrowRight, TrendingUp } from 'lucide-react';
 import { Placeholder } from '@/components/ui/placeholder';
+import { getCover, realUrl } from '@/lib/project';
 
 export function ProjectCard({ project, onOpen }) {
+  const cover = getCover(project);
   return (
     <button
       onClick={() => onOpen(project)}
@@ -12,7 +14,17 @@ export function ProjectCard({ project, onOpen }) {
       aria-label={`Open case study for ${project.name}`}
     >
       <div className="relative">
-        <Placeholder ratio="16/10" rounded="rounded-none" label={project.placeholderLabel} className="w-full group-hover:scale-105 transition-transform duration-500" />
+        {realUrl(cover) ? (
+          <img
+            src={cover}
+            alt={project.name}
+            className="w-full aspect-[16/10] object-cover group-hover:scale-105 transition-transform duration-500"
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <Placeholder ratio="16/10" rounded="rounded-none" label={project.placeholderLabel} className="w-full group-hover:scale-105 transition-transform duration-500" />
+        )}
         {project.category && (
           <span className="absolute top-3 left-3 px-2.5 py-1 text-[11px] rounded-md bg-white/90 backdrop-blur text-foreground font-medium">
             {project.category}

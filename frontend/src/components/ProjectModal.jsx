@@ -26,6 +26,7 @@ import {
   realUrl,
   gradientFor,
 } from '@/lib/project';
+import { Placeholder } from '@/components/ui/placeholder';
 
 /**
  * Auto-playing hero carousel: each slide glides right-to-left, then the next
@@ -132,6 +133,9 @@ export function ProjectModal({ project, onClose }) {
 
   const cover = getCover(project);
   const gallery = getGallery(project);
+  // Design preview only: shown when the admin hasn't uploaded real gallery
+  // photos yet, so the scrollable layout is visible before real data exists.
+  const placeholderGallery = gallery.length === 0 ? project.placeholderGallery || [] : [];
   // Cover + gallery images, de-duplicated — used for the auto-sliding hero.
   const heroImages = Array.from(new Set([cover, ...gallery.map((g) => g.url)].filter(Boolean)));
   const videos = getVideos(project);
@@ -184,7 +188,7 @@ export function ProjectModal({ project, onClose }) {
         </button>
 
         {/* Hero */}
-        <div className="relative h-72 sm:h-96 lg:h-[28rem] overflow-hidden flex-shrink-0">
+        <div className="relative h-64 sm:h-80 lg:h-96 overflow-hidden flex-shrink-0">
           {heroImages.length > 1 ? (
             <HeroCarousel images={heroImages} alt={`${project.name} screenshot`} />
           ) : cover ? (
@@ -241,6 +245,34 @@ export function ProjectModal({ project, onClose }) {
           {project.description && (
             <Section icon={Target} title="Overview">
               <p className="text-muted-foreground leading-relaxed">{project.description}</p>
+            </Section>
+          )}
+
+          {/* Gallery — every uploaded picture, scrollable at the visitor's own pace
+              (separate from the auto-cycling hero carousel above). */}
+          {(gallery.length > 0 || placeholderGallery.length > 0) && (
+            <Section icon={Layers} title="Gallery">
+              <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
+                {gallery.length > 0
+                  ? gallery.map((g, i) => (
+                      <img
+                        key={i}
+                        src={g.url}
+                        alt={g.caption || `${project.name} screenshot ${i + 1}`}
+                        loading="lazy"
+                        decoding="async"
+                        className="snap-start h-64 sm:h-80 w-auto max-w-[90%] flex-shrink-0 rounded-2xl border-2 border-[hsl(var(--border))] object-cover"
+                      />
+                    ))
+                  : placeholderGallery.map((label, i) => (
+                      <Placeholder
+                        key={i}
+                        ratio="16/10"
+                        label={label}
+                        className="snap-start h-64 sm:h-80 w-auto max-w-[90%] flex-shrink-0"
+                      />
+                    ))}
+              </div>
             </Section>
           )}
 

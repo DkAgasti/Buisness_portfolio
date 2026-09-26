@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { ArrowRight, Play, Star, FolderKanban, Users, CalendarDays, Award } from 'lucide-react';
@@ -7,12 +8,26 @@ import { openContactModal } from '@/components/ContactModal';
 import { CONTAINER } from '@/lib/container';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { useContent } from '@/components/ContentProvider';
+import { realUrl } from '@/lib/project';
 
 const AVATAR_COUNT = 5;
+const API = process.env.NEXT_PUBLIC_BACKEND_URL || '';
 
 export function Hero() {
   const { siteConfig } = useContent();
   const config = siteConfig || {};
+
+  const [reviews, setReviews] = useState([]);
+  useEffect(() => {
+    fetch(`${API}/api/testimonials`)
+      .then((r) => r.json())
+      .then((data) => setReviews(Array.isArray(data.testimonials) ? data.testimonials : []))
+      .catch(() => {});
+  }, []);
+
+  const avgRating = reviews.length
+    ? Math.round((reviews.reduce((sum, t) => sum + (t.rating || 0), 0) / reviews.length) * 10) / 10
+    : 5;
 
   const handleScrollTo = (e, id) => {
     e.preventDefault();
@@ -72,7 +87,7 @@ export function Hero() {
             </motion.h1>
 
             <motion.p {...reveal(0.2)} className="text-base sm:text-lg text-muted-foreground max-w-md mb-8 leading-relaxed">
-              Websites, mobile apps and custom digital products — designed beautifully and built to perform.
+              Websites, mobile apps and custom digital products designed beautifully and built to perform.
             </motion.p>
 
             <motion.div {...reveal(0.3)} className="flex flex-wrap gap-4 mb-9">
@@ -93,22 +108,49 @@ export function Hero() {
 
             <motion.div {...reveal(0.4)} className="flex items-center gap-3" data-testid="hero-trust-indicators">
               <div className="flex -space-x-3">
-                {Array.from({ length: AVATAR_COUNT }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-9 h-9 rounded-full bg-[hsl(var(--band))] border-2 border-[hsl(var(--background))]"
-                  />
-                ))}
+                {Array.from({ length: AVATAR_COUNT }).map((_, i) => {
+                  const t = reviews[i];
+                  if (!t) {
+                    return (
+                      <div
+                        key={i}
+                        className="w-9 h-9 rounded-full bg-[hsl(var(--band))] border-2 border-[hsl(var(--background))]"
+                      />
+                    );
+                  }
+                  return realUrl(t.avatar) ? (
+                    <img
+                      key={t._id || t.id || i}
+                      src={t.avatar}
+                      alt={t.name}
+                      className="w-9 h-9 rounded-full object-cover border-2 border-[hsl(var(--background))]"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <div
+                      key={t._id || t.id || i}
+                      className="w-9 h-9 rounded-full border-2 border-[hsl(var(--background))] bg-primary/10 flex items-center justify-center"
+                    >
+                      <span className="text-xs font-semibold text-primary">
+                        {(t.name || '?').trim()[0]?.toUpperCase()}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
               <div className="leading-tight">
                 <p className="text-sm font-medium">Trusted by 10+ happy clients</p>
                 <div className="flex items-center gap-1">
                   <div className="flex gap-0.5">
                     {[1, 2, 3, 4, 5].map((s) => (
-                      <Star key={s} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                      <Star
+                        key={s}
+                        className={`w-3.5 h-3.5 ${s <= Math.round(avgRating) ? 'fill-amber-400 text-amber-400' : 'text-[hsl(var(--border))]'}`}
+                      />
                     ))}
                   </div>
-                  <span className="text-xs text-muted-foreground">5.0</span>
+                  <span className="text-xs text-muted-foreground">{avgRating.toFixed(1)}</span>
                 </div>
               </div>
             </motion.div>

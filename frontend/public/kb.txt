@@ -1,0 +1,55 @@
+==================================================
+FREELANCER PORTFOLIO - KNOWLEDGE BASE
+==================================================
+
+ABOUT DINAKRUSHNA
+- Dinakrushna is a Full-Stack Developer & UI/UX Specialist with 5+ years of experience.
+- Specializes in building scalable Web Applications, Mobile Apps (iOS/Android), SaaS products, and MVPs for startups and businesses.
+- Focuses on clean code architecture, rapid delivery, high performance, and user-centric design.
+
+CORE SERVICES OFFERED
+1. Web Development: Custom React/Next.js websites, SaaS applications, dashboards, eCommerce stores, and API integrations.
+2. Mobile App Development: Cross-platform mobile apps using React Native / Expo.
+3. Full-Stack MVP Development: Turning product ideas into market-ready MVPs within 3 to 6 weeks.
+4. UI/UX Design & Prototyping: Modern UI designs using Figma, design systems, and responsive wireframes.
+5. Performance Optimization & Refactoring: Speed optimization, SEO enhancements, and legacy code refactoring.
+
+TECHNICAL STACK & TOOLS
+- Frontend: React.js, Next.js, TypeScript, Tailwind CSS, Redux, HTML5/CSS3.
+- Backend: Node.js, Express.js, Python, REST APIs, GraphQL.
+- Databases: PostgreSQL, MongoDB, Redis, Supabase, Firebase.
+- DevOps & Cloud: AWS (S3, EC2), Vercel, Docker, Git/GitHub, CI/CD pipelines.
+- Mobile: React Native, Expo.
+- Design: Figma.
+
+PRICING & BUDGET RANGE
+- Starting Budget: Projects typically start from $500 (or ₹40,000 INR) depending on scope and complexity.
+- Landing Pages / Simple Sites: $300 - $800 | Delivery: 3 to 7 days.
+- Full MVP / Complex Web App: $1,200 - $4,000+ | Delivery: 2 to 6 weeks.
+- Hourly Rate / Retainer: Available for ongoing maintenance or dedicated development upon discussion.
+
+ENGAGEMENT & WORKING PROCESS
+1. Discovery Call: Free 15-minute consultation to discuss project requirements, scope, and timeline.
+2. Proposal & Estimation: Detailed scope of work breakdown, milestones, and price quote provided within 24 hours.
+3. Milestones & Delivery: Project is executed in clear milestones (e.g., Design -> Prototype -> Development -> Testing -> Launch).
+4. Post-Launch Support: Every project includes 30 DAYS OF FREE POST-LAUNCH SUPPORT to fix any bugs or issues.
+
+PAYMENT TERMS & IP OWNERSHIP
+- Payment Schedule: Standard structure is 50% upfront deposit and 50% upon final delivery/sign-off. (For larger projects: 40% upfront, 30% midpoint, 30% completion).
+- Code Ownership: 100% IP (Intellectual Property) rights and code ownership are fully transferred to the client upon full payment.
+- Revisions: Up to 3 rounds of design/feature revisions are included in standard project contracts.
+
+FREQUENTLY ASKED QUESTIONS (FAQs)
+Q: Can you work with my existing team?
+A: Yes, Dinakrushna can integrate directly into your existing team via GitHub, Slack, and agile workflows.
+
+Q: How do we communicate during the project?
+A: Daily/weekly updates via Slack, WhatsApp, or Email, plus regular Zoom/Google Meet video check-ins for milestone reviews.
+
+Q: What if I need maintenance after 30 days?
+A: Monthly maintenance packages or hourly retainers are available after the free 30-day support window ends.
+
+CONTACT & BOOKING INFORMATION
+- Direct Email: [your-email@example.com]
+- Booking Link (Calendly/Cal.com): [https://calendly.com/your-link]
+- Location / Timezone: India (IST), available for flexible overlaps with US/EU timezones.
