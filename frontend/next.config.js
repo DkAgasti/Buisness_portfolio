@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   reactStrictMode: true,
   env: {
     NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL || '',
@@ -12,6 +13,14 @@ const nextConfig = {
   webpack: (config) => {
     config.externals = config.externals || [];
     return config;
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'https://backend-api-567950905652.asia-southeast1.run.app/api/:path*',
+      },
+    ];
   },
 };
 
