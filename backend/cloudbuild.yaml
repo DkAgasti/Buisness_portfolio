@@ -1,0 +1,33 @@
+steps:
+  # 1. Build Python Backend
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--platform'
+      - 'linux/amd64'
+      - '-t'
+      - 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/portfolio-apps/backend-api:$COMMIT_SHA'
+      - '.'
+    dir: 'backend'
+
+  # 2. Push Image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/portfolio-apps/backend-api:$COMMIT_SHA'
+
+  # 3. Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'backend-api'
+      - '--image'
+      - 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/portfolio-apps/backend-api:$COMMIT_SHA'
+      - '--region'
+      - 'asia-southeast1'
+      - '--allow-unauthenticated'
+
+images:
+  - 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/portfolio-apps/backend-api:$COMMIT_SHA'

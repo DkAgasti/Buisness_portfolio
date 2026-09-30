@@ -1,0 +1,37 @@
+steps:
+  # 1. Build Next.js Frontend
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--platform'
+      - 'linux/amd64'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_API_URL=https://codeprodev.site'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_SITE_URL=https://codeprodev.site'
+      - '-t'
+      - 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/portfolio-apps/frontend-app:$COMMIT_SHA'
+      - '.'
+    dir: 'frontend'
+
+  # 2. Push Image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/portfolio-apps/frontend-app:$COMMIT_SHA'
+
+  # 3. Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'frontend-app'
+      - '--image'
+      - 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/portfolio-apps/frontend-app:$COMMIT_SHA'
+      - '--region'
+      - 'asia-southeast1'
+      - '--allow-unauthenticated'
+
+images:
+  - 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/portfolio-apps/frontend-app:$COMMIT_SHA'
