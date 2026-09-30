@@ -79,7 +79,7 @@ export function Contact() {
               Let&apos;s Work <span className="gradient-text">Together</span>
             </h2>
             <p className="text-muted-foreground max-w-md mx-auto">
-              Have a project in mind? Let&apos;s bring your ideas to life
+              Have a project in mind? Let&apos;s bring your ideas to lifes
             </p>
           </div>
         </ScrollReveal>

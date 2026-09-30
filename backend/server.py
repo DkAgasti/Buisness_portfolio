@@ -53,6 +53,7 @@ RATE_LIMIT_MAX = 10
 RATE_LIMIT_WINDOW = 3600
 
 # ============ HELPERS ============
+# ============ TEST ============
 
 def get_ip_hash(ip: str) -> str:
     return hashlib.sha256(ip.encode()).hexdigest()[:16]
