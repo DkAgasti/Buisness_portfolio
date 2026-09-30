@@ -81,7 +81,7 @@ export function Hero() {
               {...reveal(0.1)}
               className="text-4xl sm:text-5xl lg:text-[3.4rem] leading-[1.08] font-bold font-heading tracking-tight mb-5"
             >
-              I turn ideas into
+              I turn ideas intos
               <br />
               <span className="gradient-text">digital experiences.</span>
             </motion.h1>
