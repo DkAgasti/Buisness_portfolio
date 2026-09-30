@@ -28,6 +28,12 @@ steps:
       - '--region'
       - 'asia-southeast1'
       - '--allow-unauthenticated'
+      - '--update-env-vars'
+      - '^|^ALLOWED_ORIGINS=https://www.codeprodev.site,https://codeprodev.site'
 
 images:
   - 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/portfolio-apps/backend-api:$COMMIT_SHA'
+
+# --- Yeh 2 lines add karo ---
+options:
+  logging: CLOUD_LOGGING_ONLY

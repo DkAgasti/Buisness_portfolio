@@ -35,3 +35,7 @@ steps:
 
 images:
   - 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/portfolio-apps/frontend-app:$COMMIT_SHA'
+
+# --- Yeh 2 lines add karo error fix karne ke liye ---
+options:
+  logging: CLOUD_LOGGING_ONLY
