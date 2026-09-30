@@ -29,7 +29,7 @@ steps:
       - 'asia-southeast1'
       - '--allow-unauthenticated'
       - '--update-env-vars'
-      - '^|^ALLOWED_ORIGINS=https://www.codeprodev.site,https://codeprodev.site'
+      - '^|^ALLOWED_ORIGINS=https://www.codeprodev.site,https://codeprodev.site|NOTIFY_EMAILS=hypercodepro.dev@gmail.com,5yearcodepro.dev@gmail.com'
 
 images:
   - 'asia-southeast1-docker.pkg.dev/$PROJECT_ID/portfolio-apps/backend-api:$COMMIT_SHA'

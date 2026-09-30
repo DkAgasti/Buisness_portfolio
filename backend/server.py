@@ -1,4 +1,5 @@
 from fastapi import FastAPI, APIRouter, Request, HTTPException, Depends, UploadFile, File, Response
+from fastapi.concurrency import run_in_threadpool
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -347,6 +348,50 @@ async def get_testimonials():
         testimonials.append(serialize_doc(doc))
     return {"testimonials": testimonials, "total": len(testimonials)}
 
+# --- Notification emails (contact form + email gate) ---
+
+def get_notify_emails() -> List[str]:
+    raw = os.environ.get('NOTIFY_EMAILS', 'hypercodepro.dev@gmail.com,5yearcodepro.dev@gmail.com')
+    return [e.strip() for e in raw.split(',') if e.strip()]
+
+
+def send_notification_email(subject: str, html_body: str, reply_to: Optional[str] = None) -> bool:
+    """Send a notification to NOTIFY_EMAILS via SMTP. Returns False if SMTP isn't configured or fails."""
+    smtp_host = os.environ.get('SMTP_HOST', '')
+    smtp_port = int(os.environ.get('SMTP_PORT', '587'))
+    smtp_email = os.environ.get('SMTP_EMAIL', '')
+    smtp_password = os.environ.get('SMTP_PASSWORD', '')
+    recipients = get_notify_emails()
+
+    if not smtp_host or not smtp_email or not smtp_password or not recipients:
+        logging.error("Notification email skipped: SMTP_HOST/SMTP_EMAIL/SMTP_PASSWORD not configured")
+        return False
+
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = smtp_email
+        msg['To'] = ', '.join(recipients)
+        msg['Subject'] = subject
+        if reply_to:
+            msg['Reply-To'] = reply_to
+        msg.attach(MIMEText(html_body, 'html'))
+        server = smtplib.SMTP(smtp_host, smtp_port, timeout=15)
+        try:
+            server.starttls()
+            server.login(smtp_email, smtp_password)
+            server.send_message(msg, to_addrs=recipients)
+        finally:
+            server.quit()
+        return True
+    except Exception as e:
+        logging.error(f"Failed to send notification email '{subject}': {e}")
+        return False
+
+
+def _esc(v) -> str:
+    return (str(v or '')).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
+
 # Contact
 @api_router.post("/contact")
 async def create_contact(contact: ContactCreate, request: Request):
@@ -354,7 +399,21 @@ async def create_contact(contact: ContactCreate, request: Request):
     ip = forwarded.split(",")[0].strip() if forwarded else request.client.host
     ip_hash = get_ip_hash(ip)
     doc = {"name": contact.name, "email": contact.email, "project_type": contact.project_type, "message": contact.message, "created_at": datetime.now(timezone.utc), "ip_hash": ip_hash, "read": False}
-    await db.contact_messages.insert_one(doc)
+    result = await db.contact_messages.insert_one(doc)
+    body = f"""
+    <div style="font-family:Arial,sans-serif;max-width:560px;padding:20px;">
+        <h2>New contact message</h2>
+        <p><b>Name:</b> {_esc(contact.name)}</p>
+        <p><b>Email:</b> {_esc(contact.email)}</p>
+        <p><b>Project type:</b> {_esc(contact.project_type)}</p>
+        <p><b>Message:</b></p>
+        <p style="white-space:pre-wrap;">{_esc(contact.message)}</p>
+    </div>
+    """
+    email_sent = await run_in_threadpool(
+        send_notification_email, f"New portfolio message from {contact.name}", body, contact.email
+    )
+    await db.contact_messages.update_one({"_id": result.inserted_id}, {"$set": {"email_sent": email_sent}})
     return {"success": True, "message": "Message sent successfully!"}
 
 # ============ EMAIL GATE (LEADS) ============
@@ -390,6 +449,16 @@ async def create_lead(lead: LeadCreate, request: Request):
         "created_at": datetime.now(timezone.utc),
     }
     await db.leads.insert_one(doc)
+    body = f"""
+    <div style="font-family:Arial,sans-serif;max-width:560px;padding:20px;">
+        <h2>New visitor entered their email</h2>
+        <p><b>Email:</b> {_esc(lead.email)}</p>
+        <p><b>Name:</b> {_esc(lead.name) or '-'}</p>
+        <p><b>IP:</b> {_esc(ip)}</p>
+        <p><b>Browser:</b> {_esc(user_agent[:200])}</p>
+    </div>
+    """
+    await run_in_threadpool(send_notification_email, f"New portfolio visitor: {lead.email}", body, lead.email)
     return {"success": True, "message": "Welcome!"}
 
 # ============ AUTH ROUTES ============
