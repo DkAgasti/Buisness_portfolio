@@ -46,6 +46,7 @@ function Avatar({ name, avatar }) {
 export function Testimonials() {
   const trackRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const activeIndexRef = useRef(0);
   const [liveTestimonials, setLiveTestimonials] = useState([]);
 
   const fetchLive = () => {
@@ -90,11 +91,31 @@ export function Testimonials() {
           closest = i;
         }
       });
+      activeIndexRef.current = closest;
       setActiveIndex(closest);
     };
     track.addEventListener("scroll", onScroll, { passive: true });
     return () => track.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Auto-scroll slowly, one card at a time; pause on hover/touch/focus.
+  const pausedRef = useRef(false);
+  useEffect(() => {
+    if (count < 2) return;
+    const id = setInterval(() => {
+      const track = trackRef.current;
+      if (!track || pausedRef.current) return;
+      const atEnd =
+        track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
+      if (atEnd) {
+        track.scrollTo({ left: 0, behavior: "smooth" });
+        return;
+      }
+      const next = Math.min(activeIndexRef.current + 1, count - 1);
+      scrollToIndex(next);
+    }, 4000);
+    return () => clearInterval(id);
+  }, [count]);
 
   const scrollToTop = (e) => {
     e.preventDefault();
@@ -140,6 +161,10 @@ export function Testimonials() {
           <ScrollReveal delay={0.1}>
             <div
               ref={trackRef}
+              onMouseEnter={() => (pausedRef.current = true)}
+              onMouseLeave={() => (pausedRef.current = false)}
+              onTouchStart={() => (pausedRef.current = true)}
+              onTouchEnd={() => setTimeout(() => (pausedRef.current = false), 3000)}
               className="flex gap-5 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth"
               data-testid="testimonials-carousel"
             >
