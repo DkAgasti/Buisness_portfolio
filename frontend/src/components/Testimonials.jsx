@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, Quote, Star } from "lucide-react";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { CONTAINER } from "@/lib/container";
@@ -44,9 +44,6 @@ function Avatar({ name, avatar }) {
 }
 
 export function Testimonials() {
-  const trackRef = useRef(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const activeIndexRef = useRef(0);
   const [liveTestimonials, setLiveTestimonials] = useState([]);
 
   const fetchLive = () => {
@@ -65,57 +62,12 @@ export function Testimonials() {
   const testimonials = liveTestimonials;
   const count = testimonials.length;
 
-  const scrollToIndex = (i) => {
-    const track = trackRef.current;
-    if (!track) return;
-    const card = track.children[i];
-    if (card)
-      track.scrollTo({
-        left: card.offsetLeft - track.offsetLeft,
-        behavior: "smooth",
-      });
-  };
-
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-    const onScroll = () => {
-      let closest = 0;
-      let closestDist = Infinity;
-      Array.from(track.children).forEach((child, i) => {
-        const dist = Math.abs(
-          child.offsetLeft - track.offsetLeft - track.scrollLeft,
-        );
-        if (dist < closestDist) {
-          closestDist = dist;
-          closest = i;
-        }
-      });
-      activeIndexRef.current = closest;
-      setActiveIndex(closest);
-    };
-    track.addEventListener("scroll", onScroll, { passive: true });
-    return () => track.removeEventListener("scroll", onScroll);
-  }, []);
-
-  // Auto-scroll slowly, one card at a time; pause on hover/touch/focus.
-  const pausedRef = useRef(false);
-  useEffect(() => {
-    if (count < 2) return;
-    const id = setInterval(() => {
-      const track = trackRef.current;
-      if (!track || pausedRef.current) return;
-      const atEnd =
-        track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
-      if (atEnd) {
-        track.scrollTo({ left: 0, behavior: "smooth" });
-        return;
-      }
-      const next = Math.min(activeIndexRef.current + 1, count - 1);
-      scrollToIndex(next);
-    }, 4000);
-    return () => clearInterval(id);
-  }, [count]);
+  // Repeat the list so one half always overfills the viewport, then
+  // animate the track by -50% for a seamless infinite loop.
+  const reps = Math.max(1, Math.ceil(6 / Math.max(count, 1)));
+  const half = Array.from({ length: reps }, () => testimonials).flat();
+  const loopItems = [...half, ...half];
+  const duration = half.length * 7;
 
   const scrollToTop = (e) => {
     e.preventDefault();
@@ -159,55 +111,43 @@ export function Testimonials() {
 
         {count > 0 ? (
           <ScrollReveal delay={0.1}>
-            <div
-              ref={trackRef}
-              onMouseEnter={() => (pausedRef.current = true)}
-              onMouseLeave={() => (pausedRef.current = false)}
-              onTouchStart={() => (pausedRef.current = true)}
-              onTouchEnd={() => setTimeout(() => (pausedRef.current = false), 3000)}
-              className="flex gap-5 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth"
-              data-testid="testimonials-carousel"
-            >
-              {testimonials.map((t, i) => (
-                <div
-                  key={t._id || t.id || i}
-                  className="snap-start shrink-0 min-w-0 w-[85%] sm:w-[calc((100%-2.5rem)/3)] card-surface rounded-2xl p-6 flex flex-col"
-                  data-testid="testimonial-card"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <Quote className="w-6 h-6 text-primary/60 flex-shrink-0" />
-                    {t.rating && <Stars rating={t.rating} />}
-                  </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed flex-1 break-words">
-                    &ldquo;{t.message}&rdquo;
-                  </p>
-                  <div className="flex items-center gap-3 mt-5">
-                    <Avatar name={t.name} avatar={t.avatar} />
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold truncate">{t.name}</p>
-                      {t.role && (
-                        <p className="text-xs text-muted-foreground truncate">
-                          {t.role}
-                        </p>
-                      )}
+            <style>{`@keyframes testimonials-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.testimonials-track:hover{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){.testimonials-track{animation:none!important}}`}</style>
+            <div className="overflow-hidden" data-testid="testimonials-carousel">
+              <div
+                className="testimonials-track flex w-max"
+                style={{ animation: `testimonials-marquee ${duration}s linear infinite` }}
+              >
+                {loopItems.map((t, i) => (
+                  <div
+                    key={`${t._id || t.id || i}-${i}`}
+                    className="shrink-0 w-[280px] sm:w-[360px] mr-5 card-surface rounded-2xl p-6 flex flex-col"
+                    data-testid="testimonial-card"
+                    aria-hidden={i >= half.length ? true : undefined}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <Quote className="w-6 h-6 text-primary/60 flex-shrink-0" />
+                      {t.rating && <Stars rating={t.rating} />}
+                    </div>
+                    <p className="text-sm text-muted-foreground leading-relaxed flex-1 break-words">
+                      &ldquo;{t.message}&rdquo;
+                    </p>
+                    <div className="flex items-center gap-3 mt-5">
+                      <Avatar name={t.name} avatar={t.avatar} />
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold truncate">{t.name}</p>
+                        {t.role && (
+                          <p className="text-xs text-muted-foreground truncate">
+                            {t.role}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-
-            {count > 1 && (
-              <div className="flex justify-center gap-2 mt-8">
-                {testimonials.map((t, i) => (
-                  <button
-                    key={t._id || t.id || i}
-                    onClick={() => scrollToIndex(i)}
-                    aria-label={`Go to review ${i + 1}`}
-                    className={`h-2 rounded-full transition-all ${i === activeIndex ? "w-6 bg-primary" : "w-2 bg-[hsl(var(--border))]"}`}
-                  />
                 ))}
               </div>
-            )}
+            </div>
           </ScrollReveal>
         ) : (
           <ScrollReveal delay={0.1}>
